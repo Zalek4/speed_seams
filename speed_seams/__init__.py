@@ -1,6 +1,6 @@
-#-----------------------------------------------------#  
+#-----------------------------------------------------#
 #    License
-#-----------------------------------------------------#  
+#-----------------------------------------------------#
 #    MIT License
 #
 #    Copyright (c) 2020-2021 Blake Darrow <contact@blakedarrow.com>
@@ -23,9 +23,12 @@
 #   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #   SOFTWARE.
 #
-#-----------------------------------------------------#  
-#     Plugin information     
-#-----------------------------------------------------#  
+#-----------------------------------------------------#
+#     Plugin information
+#-----------------------------------------------------#
+import importlib
+import sys
+import bpy
 bl_info = {
     "name": "Speed Seams",
     "author": "Alex Hallenbeck is a badass",
@@ -35,62 +38,67 @@ bl_info = {
     "description": "Custom toolkit for efficient FBX exporting, custom tools, and external mesh libraries",
     "category": "Tools",
     "wiki_url": "https://github.com/BlakeDarrow/darrow_toolkit",
-    }
-    
-#-----------------------------------------------------#  
-#     add all new scripts to this string    
-#-----------------------------------------------------#   
+}
+
+#-----------------------------------------------------#
+#     add all new scripts to this string
+#-----------------------------------------------------#
 
 if __package__ != "speed_seams":
     sys.modules["speed_seams"] = sys.modules[__package__]
 
-modulesNames = ['edge_marker',]
+modulesNames = ['edge_marker', ]
 
-#-----------------------------------------------------#  
-#     imports    
-#-----------------------------------------------------#  
-import bpy
+#-----------------------------------------------------#
+#     imports
+#-----------------------------------------------------#
 #from . import addon_updater_ops
-import sys
-import importlib
-#-----------------------------------------------------#  
-#     create a dictonary for module names    
-#-----------------------------------------------------# 
+#-----------------------------------------------------#
+#     create a dictonary for module names
+#-----------------------------------------------------#
 
 modulesFullNames = {}
 for currentModuleName in modulesNames:
-    modulesFullNames[currentModuleName] = ('{}.{}'.format(__name__, currentModuleName))
+    modulesFullNames[currentModuleName] = (
+        '{}.{}'.format(__name__, currentModuleName))
 
-#-----------------------------------------------------#  
-#     import new modules to addon using full name from above    
-#-----------------------------------------------------# 
+#-----------------------------------------------------#
+#     import new modules to addon using full name from above
+#-----------------------------------------------------#
 for currentModuleFullName in modulesFullNames.values():
     if currentModuleFullName in sys.modules:
         importlib.reload(sys.modules[currentModuleFullName])
     else:
-        globals()[currentModuleFullName] = importlib.import_module(currentModuleFullName)
-        setattr(globals()[currentModuleFullName], 'modulesNames', modulesFullNames)
+        globals()[currentModuleFullName] = importlib.import_module(
+            currentModuleFullName)
+        setattr(globals()[currentModuleFullName],
+                'modulesNames', modulesFullNames)
 
-#-----------------------------------------------------#  
-#     register the modules    
-#-----------------------------------------------------# 
+
+print("hello")
+#-----------------------------------------------------#
+#     register the modules
+#-----------------------------------------------------#
 classes = ()
 
+
 def register():
-    #addon_updater_ops.register(bl_info)
+    # addon_updater_ops.register(bl_info)
     for cls in classes:
         bpy.utils.register_class(cls)
-        
+
     for currentModuleName in modulesFullNames.values():
         if currentModuleName in sys.modules:
             if hasattr(sys.modules[currentModuleName], 'register'):
                 sys.modules[currentModuleName].register()
 
-#-----------------------------------------------------#  
-#     unregister the modules    
-#-----------------------------------------------------# 
+#-----------------------------------------------------#
+#     unregister the modules
+#-----------------------------------------------------#
+
+
 def unregister():
-    #addon_updater_ops.unregister()
+    # addon_updater_ops.unregister()
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
@@ -98,6 +106,7 @@ def unregister():
         if currentModuleName in sys.modules:
             if hasattr(sys.modules[currentModuleName], 'unregister'):
                 sys.modules[currentModuleName].unregister()
+
 
 if __name__ == "__main__":
     register()
