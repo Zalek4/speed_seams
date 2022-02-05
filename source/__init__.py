@@ -28,8 +28,8 @@
 #-----------------------------------------------------#  
 bl_info = {
     "name": "Speed Seams",
-    "author": "Blake Darrow",
-    "version": (0, 2, 0),
+    "author": "Alex Hallenbeck is a badass",
+    "version": (0, 1, 1),
     "blender": (3, 0, 0),
     "location": "View3D > Sidebar > Darrow Toolkit",
     "description": "Custom toolkit for efficient FBX exporting, custom tools, and external mesh libraries",
@@ -44,7 +44,7 @@ bl_info = {
 if __package__ != "speed_seams":
     sys.modules["speed_seams"] = sys.modules[__package__]
 
-modulesNames = ['DarrowRGB',]
+modulesNames = ['edge_marker',]
 
 #-----------------------------------------------------#  
 #     imports    
