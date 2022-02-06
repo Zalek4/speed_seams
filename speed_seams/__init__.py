@@ -5,7 +5,7 @@ import bpy
 bl_info = {
     "name": "Speed Seams",
     "author": "Alex Hallenbeck",
-    "version": (0, 2, 2),
+    "version": (0, 3, 2),
     "blender": (3, 0, 0),
     "location": "View3D > Sidebar > Speed Seams",
     "description": "",

@@ -120,7 +120,7 @@ class MarkSharpAsSeams(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MarkSeamsAsSharp(bpy.types.Operator):
+"""class MarkSeamsAsSharp(bpy.types.Operator):
     bl_idname = "do.mark_seams_as_sharp"
     bl_label = "Mark Seams as Sharp"
     bl_description = "Marks current UV seams as sharp edges"
@@ -157,7 +157,7 @@ class MarkSeamsAsSharp(bpy.types.Operator):
             bmesh.update_edit_mesh(me, False)
 
         self.report({'INFO'}, "Marked Seams as Sharp")
-        return {'FINISHED'}
+        return {'FINISHED'}"""
 
 # Logic for "Unwrap the Selected Object" button
 
@@ -293,21 +293,35 @@ class AHAutoSmooth(bpy.types.Operator):
     bl_description = "Enables Autosmooth at an angle of 180 degrees"
 
     def execute(self, context):
-        bpy.context.scene.tool_settings.mesh_select_mode = (False, True, False)
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.mark_sharp(clear=True)
-        bpy.ops.mesh.select_all(action='DESELECT')
-        bpy.ops.object.editmode_toggle()
-        self.report({'INFO'}, "Cleared Sharp Edges")
-        bpy.context.object.data.use_auto_smooth = True
-        bpy.context.object.data.auto_smooth_angle = 3.1459
+        if context.mode == 'OBJECT':
+            bpy.context.scene.tool_settings.mesh_select_mode = (
+                False, True, False)
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.mark_sharp(clear=True)
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.object.shade_smooth()
+            bpy.context.object.data.use_auto_smooth = True
+            bpy.context.object.data.auto_smooth_angle = 3.1459
 
+        else:
+            bpy.context.scene.tool_settings.mesh_select_mode = (
+                False, True, False)
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.mark_sharp(clear=True)
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.object.shade_smooth()
+            bpy.context.object.data.use_auto_smooth = True
+            bpy.context.object.data.auto_smooth_angle = 3.1459
+
+        self.report({'INFO'}, "Smoothed!")
         return {'FINISHED'}
 
 
 classes = (AHAutoSmooth, SharpenSlider, UnwrapSelected,
-           ClearSeams, ClearSharp, MarkSharpAsSeams, MarkSeamsAsSharp)
+           ClearSeams, ClearSharp, MarkSharpAsSeams, )
 
 
 def register():
