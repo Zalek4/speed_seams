@@ -29,7 +29,7 @@ import bpy
 
 # Builds a panel
 class QuickUnwrapPanel(bpy.types.Panel):
-    bl_label = "Quick Unwrap WTF"
+    bl_label = "Quick Unwrap"
     bl_category = "Quick Unwrap"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
@@ -37,18 +37,26 @@ class QuickUnwrapPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         obj = context.object
+        objs = context.selected_objects
         row = layout.row()
 
         split = layout.split()
         col = split.column(align=True)
 
         if obj is not None:
+            if len(objs) is not 0:
+                col.enabled = True
+
+            else:
+                col.enabled = False
+
             col.label(text="Smoothing and UVs")
             col.prop(obj, 'seamBool')
             col.prop(obj, 'realtimeUnwrap')
             col.prop(obj, 'smoothingAngle', slider=True)
             col.operator(AHAutoSmooth.bl_idname)
             col.separator()
+            #col2 = layout.split(align=True)
             col.operator(ClearSharp.bl_idname)
             col.operator(ClearSeams.bl_idname)
             col.separator()
@@ -78,14 +86,26 @@ class ClearSharp(bpy.types.Operator):
     # Executes automation after button press
     def execute(self, context):
 
-        bpy.context.scene.tool_settings.mesh_select_mode = (False, True, False)
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.mark_sharp(clear=True)
-        bpy.ops.mesh.select_all(action='DESELECT')
-        bpy.ops.object.editmode_toggle()
-        self.report({'INFO'}, "Cleared Sharp Edges")
+        if context.mode == 'OBJECT':
 
+            bpy.context.scene.tool_settings.mesh_select_mode = (
+                False, True, False)
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.mark_sharp(clear=True)
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.ops.object.editmode_toggle()
+
+        else:
+            bpy.ops.object.editmode_toggle()
+            bpy.context.scene.tool_settings.mesh_select_mode = (
+                False, True, False)
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.mark_sharp(clear=True)
+            bpy.ops.mesh.select_all(action='DESELECT')
+
+        self.report({'INFO'}, "Cleared Sharp Edges")
         return {'FINISHED'}
 
 # Logic for "Clear UV Seams" button
@@ -102,15 +122,26 @@ class ClearSeams(bpy.types.Operator):
     # Executes automation after button press
     def execute(self, context):
 
-        bpy.context.scene.tool_settings.mesh_select_mode = (False, True, False)
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.mark_seam(clear=True)
-        bpy.ops.mesh.select_all(action='DESELECT')
-        bpy.ops.object.editmode_toggle()
-        print("Cleared UV Seams")
-        self.report({'INFO'}, "Cleared UV Seams")
+        if context.mode == 'OBJECT':
+            bpy.context.scene.tool_settings.mesh_select_mode = (
+                False, True, False)
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.mark_seam(clear=True)
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.ops.object.editmode_toggle()
+            print("Cleared UV Seams")
 
+        else:
+            bpy.ops.object.editmode_toggle()
+            bpy.context.scene.tool_settings.mesh_select_mode = (
+                False, True, False)
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.mark_seam(clear=True)
+            bpy.ops.mesh.select_all(action='DESELECT')
+
+        self.report({'INFO'}, "Cleared UV Seams")
         return {'FINISHED'}
 
 # Logic for "Unwrap the Selected Object" button
