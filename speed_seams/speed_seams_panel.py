@@ -46,7 +46,7 @@ class SpeedSeamsPanel(bpy.types.Panel):
 
                 row = split.row(align=True)
                 row.prop(obj, 'seamBool')
-                row.prop(obj, 'realtimeUnwrap')
+                #row.prop(obj, 'realtimeUnwrap')
                 #col.scale_y = 1
                 row.scale_y = scale / 1.2
 
@@ -65,15 +65,18 @@ class SpeedSeamsPanel(bpy.types.Panel):
                 # Apply Transforms Buttons
                 col.label(text="Apply Transforms")
                 col.scale_y = scale
-                col.operator(
+                row = split.row(align=True)
+                row.operator(
                     apply_transforms.ApplyTransformsOperator.bl_idname, icon='STICKY_UVS_DISABLE')
-                col.operator(
+                row.operator(
                     apply_transforms.ApplyLocationOperator.bl_idname, icon='ORIENTATION_VIEW')
-                col.operator(
+                row.scale_y = scale
+                row = split.row(align=True)
+                row.operator(
                     apply_transforms.ApplyRotationOperator.bl_idname, icon='ORIENTATION_GIMBAL')
-                col.operator(
+                row.operator(
                     apply_transforms.ApplyScaleOperator.bl_idname, icon='CON_CHILDOF')
-                col.separator()
+                row.scale_y = scale
 
             else:
                 layout = self.layout
@@ -121,11 +124,11 @@ def register():
         default=False
     )
 
-    bpy.types.Object.realtimeUnwrap = BoolProperty(
+    """bpy.types.Object.realtimeUnwrap = BoolProperty(
         name="Realtime Unwrap",
         description="Unwraps UVs as 'Smoothing Angle' changes",
         default=False
-    )
+    )"""
 
     bpy.types.Object.unwrapBool = BoolProperty(
         name="Unwrap Selected Objects",
