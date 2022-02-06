@@ -23,44 +23,66 @@ class SpeedSeamsPanel(bpy.types.Panel):
         layout = self.layout
         obj = context.object
         objs = context.selected_objects
-        row = layout.row()
-
-        split = layout.split()
+        split = layout.box()
         col = split.column(align=True)
-
-        print("WTF")
+        split = layout.box()
+        row = split.row(align=True)
+        scale = 1.3
 
         if obj is not None:
-            col.scale_y = 1.3
+
             if len(objs) is not 0:
-                col.enabled = True
+
+                col.label(text="Smoothing and UVs")
+                col.scale_y = .3
+                row.prop(obj, 'unwrapAlgorithm')
+                row.operator(edge_marker.UnwrapSelected.bl_idname,
+                             icon='MOD_UVPROJECT')
+                row.scale_y = scale
+
+                row = split.row(align=False)
+                row.prop(obj, 'smoothingAngle', slider=True)
+                row.scale_y = scale
+
+                row = split.row(align=True)
+                row.prop(obj, 'seamBool')
+                row.prop(obj, 'realtimeUnwrap')
+                #col.scale_y = 1
+                row.scale_y = scale / 1.2
+
+                row = split.row(align=False)
+                col = split.column(align=True)
+                col.operator(edge_marker.AHAutoSmooth.bl_idname,
+                             icon='PROP_CON')
+                col.operator(edge_marker.MarkSharpAsSeams.bl_idname,
+                             icon='PMARKER_ACT')
+                # col.operator(edge_marker.MarkSeamsAsSharp.bl_idname)
+                col.operator(edge_marker.ClearSharp.bl_idname,
+                             icon='MARKER_HLT')
+                col.operator(edge_marker.ClearSeams.bl_idname, icon='MARKER')
+                col.separator()
+
+                # Apply Transforms Buttons
+                col.label(text="Apply Transforms")
+                col.scale_y = scale
+                col.operator(
+                    apply_transforms.ApplyTransformsOperator.bl_idname, icon='STICKY_UVS_DISABLE')
+                col.operator(
+                    apply_transforms.ApplyLocationOperator.bl_idname, icon='ORIENTATION_VIEW')
+                col.operator(
+                    apply_transforms.ApplyRotationOperator.bl_idname, icon='ORIENTATION_GIMBAL')
+                col.operator(
+                    apply_transforms.ApplyScaleOperator.bl_idname, icon='CON_CHILDOF')
+                col.separator()
 
             else:
-                col.enabled = False
-            col.label(text="Smoothing and UVs")
-            col.prop(obj, 'seamBool')
-            col.prop(obj, 'realtimeUnwrap')
-            col.prop(obj, 'smoothingAngle', slider=True)
-            col.operator(edge_marker.AHAutoSmooth.bl_idname)
-            col.separator()
-            col.operator(edge_marker.MarkSharpAsSeams.bl_idname)
-            col.operator(edge_marker.MarkSeamsAsSharp.bl_idname)
-            col.separator()
-            col.operator(edge_marker.ClearSharp.bl_idname, icon='PMARKER_SEL')
-            col.operator(edge_marker.ClearSeams.bl_idname, icon='PMARKER_ACT')
-            col.separator()
-            col.prop(obj, 'unwrapAlgorithm')
-            col.operator(edge_marker.UnwrapSelected.bl_idname,
-                         icon='MOD_UVPROJECT')
-            col.separator()
+                layout = self.layout
+                box = layout.box()
+                # box.separator()
+                box.label(text="Please select a mesh")
+                box.scale_y = .1
+                # box.separator()
 
-            # Apply Transforms Buttons
-            col.label(text="Apply Transforms")
-            col.operator(apply_transforms.ApplyTransformsOperator.bl_idname)
-            col.operator(apply_transforms.ApplyLocationOperator.bl_idname)
-            col.operator(apply_transforms.ApplyRotationOperator.bl_idname)
-            col.operator(apply_transforms.ApplyScaleOperator.bl_idname)
-            col.separator()
             # col.operator(JoinObjects.bl_idname)
 
     @classmethod
