@@ -1,43 +1,16 @@
-#-----------------------------------------------------#
-#    License
-#-----------------------------------------------------#
-#    MIT License
-#
-#    Copyright (c) 2020-2021 Blake Darrow <contact@blakedarrow.com>
-#
-#   Permission is hereby granted, free of charge, to any person obtaining a copy
-#   of this software and associated documentation files (the "Software"), to deal
-#   in the Software without restriction, including without limitation the rights
-#   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#   copies of the Software, and to permit persons to whom the Software is
-#   furnished to do so, subject to the following conditions:
-#
-#   The above copyright notice and this permission notice shall be included in all
-#   copies or substantial portions of the Software.
-#
-#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#   SOFTWARE.
-#
-#-----------------------------------------------------#
-#     Plugin information
-#-----------------------------------------------------#
+
 import importlib
 import sys
 import bpy
 bl_info = {
     "name": "Speed Seams",
-    "author": "Alex Hallenbeck is a badass",
-    "version": (0, 1, 1),
+    "author": "Alex Hallenbeck",
+    "version": (0, 2, 2),
     "blender": (3, 0, 0),
-    "location": "View3D > Sidebar > Darrow Toolkit",
-    "description": "Custom toolkit for efficient FBX exporting, custom tools, and external mesh libraries",
+    "location": "View3D > Sidebar > Speed Seams",
+    "description": "",
     "category": "Tools",
-    "wiki_url": "https://github.com/BlakeDarrow/darrow_toolkit",
+    "wiki_url": "",
 }
 
 #-----------------------------------------------------#
@@ -47,12 +20,11 @@ bl_info = {
 if __package__ != "speed_seams":
     sys.modules["speed_seams"] = sys.modules[__package__]
 
-modulesNames = ['edge_marker', ]
+modulesNames = ['speed_seams_panel', 'edge_marker', 'apply_transforms', ]
 
 #-----------------------------------------------------#
 #     imports
 #-----------------------------------------------------#
-#from . import addon_updater_ops
 #-----------------------------------------------------#
 #     create a dictonary for module names
 #-----------------------------------------------------#
@@ -74,8 +46,6 @@ for currentModuleFullName in modulesFullNames.values():
         setattr(globals()[currentModuleFullName],
                 'modulesNames', modulesFullNames)
 
-
-print("hello")
 #-----------------------------------------------------#
 #     register the modules
 #-----------------------------------------------------#
@@ -83,7 +53,6 @@ classes = ()
 
 
 def register():
-    # addon_updater_ops.register(bl_info)
     for cls in classes:
         bpy.utils.register_class(cls)
 
@@ -98,7 +67,6 @@ def register():
 
 
 def unregister():
-    # addon_updater_ops.unregister()
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
