@@ -16,8 +16,16 @@ class ApplyTransformsOperator(bpy.types.Operator):
 
     def execute(self, context):
 
-        bpy.ops.object.transform_apply(
-            location=True, rotation=True, scale=True)
+        if context.mode == 'OBJECT':
+            bpy.ops.object.transform_apply(
+                location=True, rotation=True, scale=True)
+
+        else:
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.object.transform_apply(
+                location=True, rotation=True, scale=True)
+            bpy.ops.object.editmode_toggle()
+
         self.report({'INFO'}, "Applied All Transformations")
 
         return {'FINISHED'}
@@ -32,8 +40,16 @@ class ApplyLocationOperator(bpy.types.Operator):
 
     def execute(self, context):
 
-        bpy.ops.object.transform_apply(
-            location=True, rotation=False, scale=False)
+        if context.mode == 'OBJECT':
+            bpy.ops.object.transform_apply(
+                location=True, rotation=False, scale=False)
+
+        else:
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.object.transform_apply(
+                location=True, rotation=False, scale=False)
+            bpy.ops.object.editmode_toggle()
+
         self.report({'INFO'}, "Applied Location")
 
         return {'FINISHED'}
@@ -48,8 +64,16 @@ class ApplyRotationOperator(bpy.types.Operator):
 
     def execute(self, context):
 
-        bpy.ops.object.transform_apply(
-            location=False, rotation=True, scale=False)
+        if context.mode == 'OBJECT':
+            bpy.ops.object.transform_apply(
+                location=False, rotation=True, scale=False)
+
+        else:
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.object.transform_apply(
+                location=False, rotation=True, scale=False)
+            bpy.ops.object.editmode_toggle()
+
         self.report({'INFO'}, "Applied Rotation")
 
         return {'FINISHED'}
@@ -64,8 +88,16 @@ class ApplyScaleOperator(bpy.types.Operator):
 
     def execute(self, context):
 
-        bpy.ops.object.transform_apply(
-            location=False, rotation=False, scale=True)
+        if context.mode == 'OBJECT':
+            bpy.ops.object.transform_apply(
+                location=False, rotation=False, scale=True)
+
+        else:
+            bpy.ops.object.editmode_toggle()
+            bpy.ops.object.transform_apply(
+                location=False, rotation=False, scale=True)
+            bpy.ops.object.editmode_toggle()
+
         self.report({'INFO'}, "Applied Scale")
 
         return {'FINISHED'}
