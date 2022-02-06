@@ -105,7 +105,7 @@ class MarkSharpAsSeams(bpy.types.Operator):
                     e.select = True
                     e.seam = True
 
-            bmesh.update_edit_mesh(me, False)
+            bmesh.update_edit_mesh(me)
             bpy.ops.object.editmode_toggle()
 
         else:
@@ -114,7 +114,7 @@ class MarkSharpAsSeams(bpy.types.Operator):
                 if not e.smooth:
                     e.select = True
                     e.seam = True
-            bmesh.update_edit_mesh(me, False)
+            bmesh.update_edit_mesh(me)
 
         self.report({'INFO'}, "Marked Sharp Edges as Seams")
         return {'FINISHED'}
