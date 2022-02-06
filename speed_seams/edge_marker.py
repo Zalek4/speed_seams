@@ -226,7 +226,7 @@ class SharpenSlider(bpy.types.Operator):
         # Variables
         Var_AngleValue = bpy.context.object.smoothingAngle
         Var_SeamBool = bpy.context.object.seamBool
-        Var_RealtimeUnwrap = bpy.context.object.realtimeUnwrap
+        #Var_RealtimeUnwrap = bpy.context.object.realtimeUnwrap
 
         # Convert angle slider input to radians
         Var_NewAngle = Var_AngleValue * (3.1459/180)
@@ -269,7 +269,7 @@ class SharpenSlider(bpy.types.Operator):
             print("DID NOT MARK UV SEAMS")
 
         # Unwrap the object if checkbox is filled
-        if Var_RealtimeUnwrap == True:
+        """if Var_RealtimeUnwrap == True:
             bpy.ops.mesh.select_all(action='SELECT')
             bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.01)
             bpy.ops.uv.select_all(action='SELECT')
@@ -280,7 +280,7 @@ class SharpenSlider(bpy.types.Operator):
             print("Realtime Unwrap Active")
 
         else:
-            print("Realtime Unwrap is not checked")
+            print("Realtime Unwrap is not checked")"""
 
         return None
 
