@@ -1,80 +1,14 @@
-# info for plugin
-from bpy.types import (Panel,
-                       Menu,
-                       Operator,
-                       PropertyGroup,
-                       )
-from bpy.props import (StringProperty,
-                       BoolProperty,
-                       IntProperty,
-                       FloatProperty,
-                       FloatVectorProperty,
-                       EnumProperty,
-                       PointerProperty,
-                       )
-from gpu_extras.batch import batch_for_shader
-import gpu
-import bgl
-import bpy
-
-
 # ------------------------------------------------------------------------
 #    Imports
 # ------------------------------------------------------------------------
 
+import bpy
+import bmesh
+from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
 
 # ------------------------------------------------------------------------
 #    Classes
 # ------------------------------------------------------------------------
-
-# Builds a panel
-class QuickUnwrapPanel(bpy.types.Panel):
-    bl_label = "Quick Unwrap"
-    bl_category = "Quick Unwrap"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-
-    def draw(self, context):
-        layout = self.layout
-        obj = context.object
-        objs = context.selected_objects
-        row = layout.row()
-
-        split = layout.split()
-        col = split.column(align=True)
-
-        if obj is not None:
-            col.scale_y = 1.3
-            if len(objs) is not 0:
-                col.enabled = True
-
-            else:
-                col.enabled = False
-
-            col.label(text="Smoothing and UVs")
-            col.prop(obj, 'seamBool')
-            col.prop(obj, 'realtimeUnwrap')
-            col.prop(obj, 'smoothingAngle', slider=True)
-            col.operator(AHAutoSmooth.bl_idname)
-            col.separator()
-            #col2 = layout.split(align=True)
-            col.operator(ClearSharp.bl_idname, icon='PMARKER_SEL')
-            col.operator(ClearSeams.bl_idname, icon='PMARKER_ACT')
-            col.separator()
-            col.prop(obj, 'unwrapAlgorithm')
-            col.operator(UnwrapSelected.bl_idname, icon='MOD_UVPROJECT')
-            col.separator()
-            col.label(text="Apply Transforms")
-            col.operator(ApplyTransformsOperator.bl_idname)
-            col.operator(ApplyLocationOperator.bl_idname)
-            col.operator(ApplyRotationOperator.bl_idname)
-            col.operator(ApplyScaleOperator.bl_idname)
-            col.separator()
-            # col.operator(JoinObjects.bl_idname)
-
-    @classmethod
-    def poll(cls, context):
-        return context.mode in {'EDIT_MESH', 'OBJECT'}
 
 # Logic for "Clear Sharp" button
 
@@ -143,6 +77,86 @@ class ClearSeams(bpy.types.Operator):
             bpy.ops.mesh.select_all(action='DESELECT')
 
         self.report({'INFO'}, "Cleared UV Seams")
+        return {'FINISHED'}
+
+
+class MarkSharpAsSeams(bpy.types.Operator):
+    bl_idname = "do.mark_sharp_as_seams"
+    bl_label = "Mark Sharp as Seams"
+    bl_description = "Marks current sharp edges as UV seams"
+
+    #FloatValue = bpy.context.object.smoothingAngle
+    #print("Initial Button Value =", FloatValue)
+
+    # Executes automation after button press
+
+    def execute(self, context):
+
+        obj = bpy.context.active_object
+        me = bpy.context.object.data
+        #bm = bmesh.from_edit_mesh(me)
+
+        if context.mode == 'OBJECT':
+            bpy.ops.object.editmode_toggle()
+            bm = bmesh.from_edit_mesh(me)
+
+            for e in bm.edges:
+                if not e.smooth:
+                    e.select = True
+                    e.seam = True
+
+            bmesh.update_edit_mesh(me, False)
+            bpy.ops.object.editmode_toggle()
+
+        else:
+            bm = bmesh.from_edit_mesh(me)
+            for e in bm.edges:
+                if not e.smooth:
+                    e.select = True
+                    e.seam = True
+            bmesh.update_edit_mesh(me, False)
+
+        self.report({'INFO'}, "Marked Sharp Edges as Seams")
+        return {'FINISHED'}
+
+
+class MarkSeamsAsSharp(bpy.types.Operator):
+    bl_idname = "do.mark_seams_as_sharp"
+    bl_label = "Mark Seams as Sharp"
+    bl_description = "Marks current UV seams as sharp edges"
+
+    #FloatValue = bpy.context.object.smoothingAngle
+    #print("Initial Button Value =", FloatValue)
+
+    # Executes automation after button press
+
+    def execute(self, context):
+
+        obj = bpy.context.active_object
+        me = bpy.context.object.data
+        #bm = bmesh.from_edit_mesh(me)
+
+        if context.mode == 'OBJECT':
+            bpy.ops.object.editmode_toggle()
+            bm = bmesh.from_edit_mesh(me)
+
+            for e in bm.edges:
+                if e.seam:
+                    e.select = True
+                    e.smooth = False
+
+            bmesh.update_edit_mesh(me, False)
+            bpy.ops.object.editmode_toggle()
+
+        else:
+            bm = bmesh.from_edit_mesh(me)
+            for e in bm.edges:
+                if e.seam:
+                    e.select = True
+                    e.smooth = False
+            bmesh.update_edit_mesh(me, False)
+
+        self.report({'INFO'}, "Marked Seams as Sharp")
         return {'FINISHED'}
 
 # Logic for "Unwrap the Selected Object" button
@@ -291,159 +305,16 @@ class AHAutoSmooth(bpy.types.Operator):
 
         return {'FINISHED'}
 
-# Logic for "Apply Transforms" button
 
+classes = (AHAutoSmooth, SharpenSlider, UnwrapSelected,
+           ClearSeams, ClearSharp, MarkSharpAsSeams, MarkSeamsAsSharp)
 
-class ApplyTransformsOperator(bpy.types.Operator):
-    bl_idname = "do.ah_apply_transforms"
-    bl_label = "All Transforms"
-    bl_description = "Applies selected transforms for the selected object"
-
-    def execute(self, context):
-
-        bpy.ops.object.transform_apply(
-            location=True, rotation=True, scale=True)
-        self.report({'INFO'}, "Applied All Transformations")
-
-        return {'FINISHED'}
-
-# Logic for "Apply Location" button
-
-
-class ApplyLocationOperator(bpy.types.Operator):
-    bl_idname = "do.ah_apply_location"
-    bl_label = "Location"
-    bl_description = "Applies the location of the selected object"
-
-    def execute(self, context):
-
-        bpy.ops.object.transform_apply(
-            location=True, rotation=False, scale=False)
-        self.report({'INFO'}, "Applied Location")
-
-        return {'FINISHED'}
-
-# Logic for "Apply Rotation" button
-
-
-class ApplyRotationOperator(bpy.types.Operator):
-    bl_idname = "do.ah_apply_rotation"
-    bl_label = "Rotation"
-    bl_description = "Applies the rotation of the selected object"
-
-    def execute(self, context):
-
-        bpy.ops.object.transform_apply(
-            location=False, rotation=True, scale=False)
-        self.report({'INFO'}, "Applied Rotation")
-
-        return {'FINISHED'}
-
-# Logic for "Apply Scale" button
-
-
-class ApplyScaleOperator(bpy.types.Operator):
-    bl_idname = "do.ah_apply_scale"
-    bl_label = "Scale"
-    bl_description = "Applies the scale of the selected object"
-
-    def execute(self, context):
-
-        bpy.ops.object.transform_apply(
-            location=False, rotation=False, scale=True)
-        self.report({'INFO'}, "Applied Scale")
-
-        return {'FINISHED'}
-
-
-# Logic for "Join" button
-"""class JoinObjects(bpy.types.Operator):
-	bl_idname = "do.ah_join_objects"
-	bl_label = "Join"
-	bl_description = "Joins selected objects with active object"
-
-	def execute(self, context):
-
-		bpy.ops.object.join()
-		self.report({'INFO'}, "Joined Objects")
-		return {'FINISHED'}"""
-
-
-# ------------------------------------------------------------------------
-#    Registration
-# ------------------------------------------------------------------------
 
 def register():
-    bpy.utils.register_class(QuickUnwrapPanel)
-    bpy.utils.register_class(ClearSharp)
-    bpy.utils.register_class(ClearSeams)
-    bpy.utils.register_class(UnwrapSelected)
-    bpy.utils.register_class(SharpenSlider)
-    bpy.utils.register_class(AHAutoSmooth)
-    bpy.utils.register_class(ApplyTransformsOperator)
-    bpy.utils.register_class(ApplyLocationOperator)
-    bpy.utils.register_class(ApplyRotationOperator)
-    bpy.utils.register_class(ApplyScaleOperator)
-    # bpy.utils.register_class(JoinObjects)
-
-    # ------------------------------------------------------------------------
-    #    Properties
-    # ------------------------------------------------------------------------
-    bpy.types.Object.smoothingAngle = FloatProperty(
-        name="Sharp Edge Angle",
-        description="Angle to use for smoothing",
-        default=35,
-        min=1,
-        max=180,
-        step=0.5,
-        update=SharpenSlider.execute
-    )
-
-    bpy.types.Object.seamBool = BoolProperty(
-        name="Mark Sharp as Seams",
-        description="Marks 'Smooth and Sharpen' edges as UV seams",
-        default=False
-    )
-
-    bpy.types.Object.realtimeUnwrap = BoolProperty(
-        name="Realtime Unwrap",
-        description="Unwraps UVs as 'Smoothing Angle' changes",
-        default=False
-    )
-
-    bpy.types.Object.unwrapBool = BoolProperty(
-        name="Unwrap Selected Objects",
-        description="Unwraps the selected objects and packs them conformally",
-        default=False
-    )
-
-    bpy.types.Object.unwrapAlgorithm = EnumProperty(
-        name="",
-        description="Apply Data to attribute.",
-        items=[('OP1', "Conformal", ""),
-               ('OP2', "Angle-Based", ""),
-               ]
-    )
+    for cls in classes:
+        bpy.utils.register_class(cls)
 
 
-# ------------------------------------------------------------------------
-#    Unregistration
-# ------------------------------------------------------------------------
 def unregister():
-    # bpy.utils.unregister_class(DrawLines)
-    bpy.utils.unregister_class(QuickUnwrapPanel)
-    bpy.utils.unregister_class(ClearSharp)
-    bpy.utils.unregister_class(ClearSeams)
-    bpy.utils.unregister_class(UnwrapSelected)
-    bpy.utils.unregister_class(SharpenSlider)
-    bpy.utils.unregister_class(AHAutoSmooth)
-    bpy.utils.unregister_class(ApplyTransformsOperator)
-    bpy.utils.unregister_class(ApplyLocationOperator)
-    bpy.utils.unregister_class(ApplyRotationOperator)
-    bpy.utils.unregister_class(ApplyScaleOperator)
-    """bpy.utils.unregister_class(JoinObjects)"""
-
-
-# honestly not sure wtf this is
-if __name__ == "__main__":
-    register()
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

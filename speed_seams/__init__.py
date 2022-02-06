@@ -3,14 +3,14 @@ import importlib
 import sys
 import bpy
 bl_info = {
-    "name": "Alex Toolkit",
+    "name": "Speed Seams",
     "author": "Alex Hallenbeck",
-    "version": (0, 1, 2),
+    "version": (0, 2, 2),
     "blender": (3, 0, 0),
-    "location": "View3D > Sidebar > Alex Toolkit",
-    "description": "Custom toolkit for efficient FBX exporting, custom tools, and external mesh libraries",
+    "location": "View3D > Sidebar > Speed Seams",
+    "description": "",
     "category": "Tools",
-    "wiki_url": "https://github.com/BlakeDarrow/darrow_toolkit",
+    "wiki_url": "",
 }
 
 #-----------------------------------------------------#
@@ -20,7 +20,7 @@ bl_info = {
 if __package__ != "speed_seams":
     sys.modules["speed_seams"] = sys.modules[__package__]
 
-modulesNames = ['edge_marker', ]
+modulesNames = ['speed_seams_panel', 'edge_marker', 'apply_transforms', ]
 
 #-----------------------------------------------------#
 #     imports
