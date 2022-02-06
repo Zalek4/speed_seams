@@ -1,292 +1,417 @@
-#-----------------------------------------------------#
-#
-#    Copyright (c) 2020-2021 Blake Darrow <contact@blakedarrow.com>
-#
-#    See the LICENSE file for your full rights.
-#
-#-----------------------------------------------------#
-#   Imports
-#-----------------------------------------------------#
-
-import bpy
+# info for plugin
 from bpy.types import (Panel,
                        Menu,
                        Operator,
+                       PropertyGroup,
                        )
+from bpy.props import (StringProperty,
+                       BoolProperty,
+                       IntProperty,
+                       FloatProperty,
+                       FloatVectorProperty,
+                       EnumProperty,
+                       PointerProperty,
+                       )
+from gpu_extras.batch import batch_for_shader
+import gpu
+import bgl
+import bpy
 
-#-----------------------------------------------------#
-#     handles panel if null
-#-----------------------------------------------------#
+
+# ------------------------------------------------------------------------
+#    Imports
+# ------------------------------------------------------------------------
 
 
-class DarrowNullPanel(bpy.types.Panel):
-    bl_label = ""
-    bl_category = "Darrow Toolkit"
+# ------------------------------------------------------------------------
+#    Classes
+# ------------------------------------------------------------------------
+
+# Builds a panel
+class QuickUnwrapPanel(bpy.types.Panel):
+    bl_label = "Quick Unwrap WTF"
+    bl_category = "Quick Unwrap"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_idname = "DARROW_PT_nullPanel"
-
-    @classmethod
-    def poll(cls, context):
-        obj = context.active_object
-
-        for obj in bpy.context.selected_objects:
-            if obj is not None:
-                # if obj.type =='MESH' : return True
-                if obj.type == 'EMPTY':
-                    return True
-                if obj.type == 'CAMERA':
-                    return True
-                if obj.type == 'LIGHT':
-                    return True
-                if obj.type == 'CURVE':
-                    return True
-                if obj.type == 'FONT':
-                    return True
-                if obj.type == 'LATTICE':
-                    return True
-                if obj.type == 'LIGHT_PROBE':
-                    return True
-                if obj.type == 'IMAGE':
-                    return True
-                if obj.type == 'SPEAKER':
-                    return True
-
-    def draw(self, context):
-        layout = self.layout
-        box = layout.box()
-        box.separator()
-        box.label(text="Please select only mesh(s)")
-        box.separator()
-
-#-----------------------------------------------------#
-#     handles ui
-#-----------------------------------------------------#
-
-
-class DarrowVertexPanel(bpy.types.Panel):
-    bl_label = "DarrowVertex"
-    bl_category = "Darrow Toolkit"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_idname = "DARROW_PT_rgbPanel"
-
-    @classmethod
-    def poll(cls, context):
-        settings = context.preferences.addons['darrow_toolkit'].preferences
-        obj = context.active_object
-
-        if obj is not None:
-            obj = context.active_object
-            objs = bpy.context.object.data
-            for obj in bpy.context.selected_objects:
-                if obj.type == 'CURVE':
-                    return False
-                if obj.type == 'FONT':
-                    return False
-                if obj.type == 'CAMERA':
-                    return False
-                if obj.type == 'LIGHT':
-                    return False
-                if obj.type == 'LATTICE':
-                    return False
-                if obj.type == 'LIGHT_PROBE':
-                    return False
-                if obj.type == 'IMAGE':
-                    return False
-                if obj.type == 'SPEAKER':
-                    return False
-        return settings.rgb_moduleBool == True
-
-    def draw_header(self, context):
-        layout = self.layout
-        obj = context.scene
-        Var_displayBool = bpy.context.scene.vertexDisplayBool
-        Var_viewportShading = bpy.context.space_data.shading.type
-        self.layout.operator('set.display', icon="SETTINGS",
-                             text="", depress=Var_displayBool)
-        if Var_viewportShading != 'SOLID':
-            self.layout.enabled = False
 
     def draw(self, context):
         layout = self.layout
         obj = context.object
-        scn = context.scene
+        row = layout.row()
+
+        split = layout.split()
+        col = split.column(align=True)
 
         if obj is not None:
-            split = layout.box()
-            row = split.row(align=True)
-            row.operator('set.black')
-            row.operator('set.white')
+            col.label(text="Smoothing and UVs")
+            col.prop(obj, 'seamBool')
+            col.prop(obj, 'realtimeUnwrap')
+            col.prop(obj, 'smoothingAngle', slider=True)
+            col.operator(AHAutoSmooth.bl_idname)
+            col.separator()
+            col.operator(ClearSharp.bl_idname)
+            col.operator(ClearSeams.bl_idname)
+            col.separator()
+            col.prop(obj, 'unwrapAlgorithm')
+            col.operator(UnwrapSelected.bl_idname)
+            col.separator()
+            col.label(text="Apply Transforms")
+            col.operator(ApplyTransformsOperator.bl_idname)
+            col.operator(ApplyLocationOperator.bl_idname)
+            col.operator(ApplyRotationOperator.bl_idname)
+            col.operator(ApplyScaleOperator.bl_idname)
+            col.separator()
+            # col.operator(JoinObjects.bl_idname)
 
-            row = split.row(align=True)
-            row.operator('set.red')
-            row.operator('set.green')
-            row.operator('set.blue')
+    @classmethod
+    def poll(cls, context):
+        return context.mode in {'EDIT_MESH', 'OBJECT'}
 
-#-----------------------------------------------------#
-#     set Black color
-#-----------------------------------------------------#
+# Logic for "Clear Sharp" button
 
 
-class DarrowSetBlack(bpy.types.Operator):
-    bl_idname = "set.black"
-    bl_label = "Black"
+class ClearSharp(bpy.types.Operator):
+    bl_idname = "do.clear_sharp"
+    bl_label = "Clear Sharp"
+    bl_description = "Clears the selected object's sharp edges"
 
+    # Executes automation after button press
     def execute(self, context):
-        bpy.data.brushes["Draw"].color = (0, 0, 0)
-        DarrowSetColor.execute(self, context)
-        return {'FINISHED'}
 
-#-----------------------------------------------------#
-#     set White color
-#-----------------------------------------------------#
-
-
-class DarrowSetWhite(bpy.types.Operator):
-    bl_idname = "set.white"
-    bl_label = "White"
-
-    def execute(self, context):
-        bpy.data.brushes["Draw"].color = (1, 1, 1)
-        DarrowSetColor.execute(self, context)
-        return {'FINISHED'}
-
-#-----------------------------------------------------#
-#     set Red color
-#-----------------------------------------------------#
-
-
-class DarrowSetRed(bpy.types.Operator):
-    bl_idname = "set.red"
-    bl_label = "Red"
-
-    def execute(self, context):
-        bpy.data.brushes["Draw"].color = (1, 0, 0)
-        DarrowSetColor.execute(self, context)
-        return {'FINISHED'}
-
-#-----------------------------------------------------#
-#     set Green color
-#-----------------------------------------------------#
-
-
-class DarrowSetGreen(bpy.types.Operator):
-    bl_idname = "set.green"
-    bl_label = "Green"
-
-    def execute(self, context):
-        bpy.data.brushes["Draw"].color = (0, 1, 0)
-        DarrowSetColor.execute(self, context)
-        return {'FINISHED'}
-
-#-----------------------------------------------------#
-#     set Blue color
-#-----------------------------------------------------#
-
-
-class DarrowSetBlue(bpy.types.Operator):
-    bl_idname = "set.blue"
-    bl_label = "Blue"
-
-    def execute(self, context):
-        bpy.data.brushes["Draw"].color = (0, 0, 1)
-        DarrowSetColor.execute(self, context)
-        return {'FINISHED'}
-
-#-----------------------------------------------------#
-#     handles setting vertex color
-#-----------------------------------------------------#
-
-
-class DarrowSetColor(bpy.types.Operator):
-    bl_idname = "set.color"
-    bl_label = "Set Color"
-
-    def execute(self, context):
-        current_mode = bpy.context.object.mode
-        if current_mode == 'OBJECT':
-            view_layer = bpy.context.view_layer
-            obj_active = view_layer.objects.active
-            selection = bpy.context.selected_objects
-            bpy.ops.object.select_all(action='DESELECT')
-
-            for obj in selection:
-                view_layer.objects.active = obj
-                bpy.ops.object.editmode_toggle()
-                bpy.ops.mesh.select_all(action='SELECT')
-                bpy.ops.paint.vertex_paint_toggle()
-                bpy.ops.paint.vertex_color_set()
-                bpy.ops.object.mode_set(mode='OBJECT')
-                obj.select_set(True)
-
-        if current_mode == 'EDIT':
-            view_layer = bpy.context.view_layer
-            obj_active = view_layer.objects.active
-            selection = bpy.context.selected_objects
-
-            for obj in selection:
-                view_layer.objects.active = obj
-                bpy.ops.paint.vertex_paint_toggle()
-                bpy.context.object.data.use_paint_mask = True
-                bpy.ops.paint.vertex_color_set()
-                bpy.ops.object.mode_set(mode='EDIT')
+        bpy.context.scene.tool_settings.mesh_select_mode = (False, True, False)
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.mark_sharp(clear=True)
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.editmode_toggle()
+        self.report({'INFO'}, "Cleared Sharp Edges")
 
         return {'FINISHED'}
 
-#-----------------------------------------------------#
-#     handles setting shading display
-#-----------------------------------------------------#
+# Logic for "Clear UV Seams" button
 
 
-class DarrowSetDisplay(bpy.types.Operator):
-    bl_idname = "set.display"
-    bl_name = "Show Color"
-    bl_label = "Toggle vertex color visability"
-    """
-    We have to have this class here to toggle the bool value,
-    so that a user can still manualy change the shading method
-    """
+class ClearSeams(bpy.types.Operator):
+    bl_idname = "do.clear_seams"
+    bl_label = "Clear UV Seams"
+    bl_description = "Clears the selected object's UV seams"
+
+    #FloatValue = bpy.context.object.smoothingAngle
+    #print("Initial Button Value =", FloatValue)
+
+    # Executes automation after button press
+    def execute(self, context):
+
+        bpy.context.scene.tool_settings.mesh_select_mode = (False, True, False)
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.mark_seam(clear=True)
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.editmode_toggle()
+        print("Cleared UV Seams")
+        self.report({'INFO'}, "Cleared UV Seams")
+
+        return {'FINISHED'}
+
+# Logic for "Unwrap the Selected Object" button
+
+
+class UnwrapSelected(bpy.types.Operator):
+    bl_idname = "do.ah_unwrap"
+    bl_label = "Unwrap Object"
+    bl_description = "Unwraps, averages, and packs UVs"
 
     def execute(self, context):
-        Var_displayBool = bpy.context.scene.vertexDisplayBool
-        Var_viewportShading = bpy.context.space_data.shading.type
 
-        # Toggle bool value everytime this operator is called
-        Var_displayBool = not Var_displayBool
+        Var_UnwrapMethod = bpy.context.object.unwrapAlgorithm
+        print(Var_UnwrapMethod)
 
-        if Var_displayBool == True and Var_viewportShading == 'SOLID':
-            bpy.context.space_data.shading.color_type = 'VERTEX'
-        elif Var_viewportShading == 'SOLID':
-            bpy.context.space_data.shading.color_type = 'MATERIAL'
+        bpy.context.scene.tool_settings.mesh_select_mode = (False, True, False)
 
-        bpy.context.scene.vertexDisplayBool = Var_displayBool
+        if context.mode == 'OBJECT':
+            bpy.ops.object.editmode_toggle()
+
+        else:
+            print("Context is not 'Object' it is", context.mode)
+
+        if Var_UnwrapMethod == 'OP1':
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.uv.unwrap(method='CONFORMAL', margin=0.01)
+            bpy.ops.uv.select_all(action='SELECT')
+            bpy.ops.uv.average_islands_scale()
+            bpy.ops.uv.pack_islands(rotate=True, margin=0.01)
+            bpy.ops.uv.select_all(action='DESELECT')
+            bpy.context.scene.tool_settings.uv_select_mode = ('ISLAND')
+            print("UNWRAPPED UVS CONFORMAL")
+            self.report({'INFO'}, "Unwrapped UVs -- Conformal")
+
+        else:
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.01)
+            bpy.ops.uv.select_all(action='SELECT')
+            bpy.ops.uv.average_islands_scale()
+            bpy.ops.uv.pack_islands(rotate=True, margin=0.01)
+            bpy.ops.uv.select_all(action='DESELECT')
+            bpy.context.scene.tool_settings.uv_select_mode = ('ISLAND')
+            print("UNWRAPPED UVS ANGLE-BASED")
+            self.report({'INFO'}, "Unwrapped UVs -- Angle-Based")
+
+        return {'FINISHED'}
+
+# Logic for "Smoothing Angle" slider
+
+
+class SharpenSlider(bpy.types.Operator):
+    bl_idname = "do.ah_smooth"
+    bl_label = "Smooth and Sharpen"
+    bl_description = "Sets 'Autosmooth' and 'Sharp Edges' at slider angle"
+    bl_context = 'mesh_edit'
+
+    #FloatValue = bpy.context.object.smoothingAngle
+    #print("Initial Button Value =", FloatValue)
+
+    # Executes automation after button press
+    def execute(self, context):
+
+        # ------------------------------------------------------------------------
+        #    Smoothing Logic
+        # ------------------------------------------------------------------------
+
+        # Variables
+        Var_AngleValue = bpy.context.object.smoothingAngle
+        Var_SeamBool = bpy.context.object.seamBool
+        Var_RealtimeUnwrap = bpy.context.object.realtimeUnwrap
+
+        # Convert angle slider input to radians
+        Var_NewAngle = Var_AngleValue * (3.1459/180)
+
+        # Enable autosmooth at the defined angle
+        bpy.context.object.data.use_auto_smooth = True
+        bpy.context.object.data.auto_smooth_angle = 3.1459
+
+        # Enter 'Edit Mode', deselect everything, and change selection setting to 'Edge'
+
+        if context.mode == 'OBJECT':
+            print("CONTEXT IS", context.mode)
+            bpy.ops.object.shade_smooth()
+            bpy.context.scene.tool_settings.mesh_select_mode = (
+                False, True, False)
+            bpy.ops.object.editmode_toggle()
+
+        else:
+            print("Context is not 'OBJECT' -- it is ", context.mode)
+
+        bpy.ops.mesh.select_all(action='DESELECT')
+
+        # Clear old sharp edges, and mark sharp edges based on the smoothing angle
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.mark_sharp(clear=True)
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.mesh.edges_select_sharp(sharpness=Var_NewAngle)
+        bpy.ops.mesh.mark_sharp()
+
+        # Mark UV seams at sharp edges if the checkbox is filled
+        if Var_SeamBool == True:
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.mark_seam(clear=True)
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.ops.mesh.edges_select_sharp(sharpness=Var_NewAngle)
+            bpy.ops.mesh.mark_seam(clear=False)
+            print("MARKED UV SEAMS")
+
+        else:
+            print("DID NOT MARK UV SEAMS")
+
+        # Unwrap the object if checkbox is filled
+        if Var_RealtimeUnwrap == True:
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.01)
+            bpy.ops.uv.select_all(action='SELECT')
+            bpy.ops.uv.average_islands_scale()
+            bpy.ops.uv.pack_islands(rotate=True, margin=0.01)
+            bpy.ops.uv.select_all(action='DESELECT')
+            bpy.context.scene.tool_settings.uv_select_mode = ('ISLAND')
+            print("Realtime Unwrap Active")
+
+        else:
+            print("Realtime Unwrap is not checked")
+
+        return None
+
+# Logic for "Smooth All" button
+
+
+class AHAutoSmooth(bpy.types.Operator):
+    bl_idname = "do.ah_autosmooth"
+    bl_label = "Smooth All"
+    bl_description = "Enables Autosmooth at an angle of 180 degrees"
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.mesh_select_mode = (False, True, False)
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.mark_sharp(clear=True)
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.editmode_toggle()
+        self.report({'INFO'}, "Cleared Sharp Edges")
+        bpy.context.object.data.use_auto_smooth = True
+        bpy.context.object.data.auto_smooth_angle = 3.1459
+
+        return {'FINISHED'}
+
+# Logic for "Apply Transforms" button
+
+
+class ApplyTransformsOperator(bpy.types.Operator):
+    bl_idname = "do.ah_apply_transforms"
+    bl_label = "All Transforms"
+    bl_description = "Applies selected transforms for the selected object"
+
+    def execute(self, context):
+
+        bpy.ops.object.transform_apply(
+            location=True, rotation=True, scale=True)
+        self.report({'INFO'}, "Applied All Transformations")
+
+        return {'FINISHED'}
+
+# Logic for "Apply Location" button
+
+
+class ApplyLocationOperator(bpy.types.Operator):
+    bl_idname = "do.ah_apply_location"
+    bl_label = "Location"
+    bl_description = "Applies the location of the selected object"
+
+    def execute(self, context):
+
+        bpy.ops.object.transform_apply(
+            location=True, rotation=False, scale=False)
+        self.report({'INFO'}, "Applied Location")
+
+        return {'FINISHED'}
+
+# Logic for "Apply Rotation" button
+
+
+class ApplyRotationOperator(bpy.types.Operator):
+    bl_idname = "do.ah_apply_rotation"
+    bl_label = "Rotation"
+    bl_description = "Applies the rotation of the selected object"
+
+    def execute(self, context):
+
+        bpy.ops.object.transform_apply(
+            location=False, rotation=True, scale=False)
+        self.report({'INFO'}, "Applied Rotation")
+
+        return {'FINISHED'}
+
+# Logic for "Apply Scale" button
+
+
+class ApplyScaleOperator(bpy.types.Operator):
+    bl_idname = "do.ah_apply_scale"
+    bl_label = "Scale"
+    bl_description = "Applies the scale of the selected object"
+
+    def execute(self, context):
+
+        bpy.ops.object.transform_apply(
+            location=False, rotation=False, scale=True)
+        self.report({'INFO'}, "Applied Scale")
+
         return {'FINISHED'}
 
 
-#-----------------------------------------------------#
-#   Registration classes
-#-----------------------------------------------------#
-classes = (DarrowNullPanel, DarrowVertexPanel, DarrowSetBlack, DarrowSetWhite,
-           DarrowSetRed, DarrowSetGreen, DarrowSetBlue, DarrowSetColor, DarrowSetDisplay,)
+# Logic for "Join" button
+"""class JoinObjects(bpy.types.Operator):
+	bl_idname = "do.ah_join_objects"
+	bl_label = "Join"
+	bl_description = "Joins selected objects with active object"
 
+	def execute(self, context):
+
+		bpy.ops.object.join()
+		self.report({'INFO'}, "Joined Objects")
+		return {'FINISHED'}"""
+
+
+# ------------------------------------------------------------------------
+#    Registration
+# ------------------------------------------------------------------------
 
 def register():
-    for cls in classes:
-        bpy.utils.register_class(cls)
+    bpy.utils.register_class(QuickUnwrapPanel)
+    bpy.utils.register_class(ClearSharp)
+    bpy.utils.register_class(ClearSeams)
+    bpy.utils.register_class(UnwrapSelected)
+    bpy.utils.register_class(SharpenSlider)
+    bpy.utils.register_class(AHAutoSmooth)
+    bpy.utils.register_class(ApplyTransformsOperator)
+    bpy.utils.register_class(ApplyLocationOperator)
+    bpy.utils.register_class(ApplyRotationOperator)
+    bpy.utils.register_class(ApplyScaleOperator)
+    # bpy.utils.register_class(JoinObjects)
 
-    bpy.types.Scene.vertexDisplayBool = bpy.props.BoolProperty(
+    # ------------------------------------------------------------------------
+    #    Properties
+    # ------------------------------------------------------------------------
+    bpy.types.Object.smoothingAngle = FloatProperty(
+        name="Sharp Edge Angle",
+        description="Angle to use for smoothing",
+        default=35,
+        min=1,
+        max=180,
+        step=0.5,
+        update=SharpenSlider.execute
+    )
+
+    bpy.types.Object.seamBool = BoolProperty(
+        name="Mark Sharp as Seams",
+        description="Marks 'Smooth and Sharpen' edges as UV seams",
+        default=False
+    )
+
+    bpy.types.Object.realtimeUnwrap = BoolProperty(
+        name="Realtime Unwrap",
+        description="Unwraps UVs as 'Smoothing Angle' changes",
+        default=False
+    )
+
+    bpy.types.Object.unwrapBool = BoolProperty(
+        name="Unwrap Selected Objects",
+        description="Unwraps the selected objects and packs them conformally",
+        default=False
+    )
+
+    bpy.types.Object.unwrapAlgorithm = EnumProperty(
         name="",
-        description="Toggle visabilty of vertex color",
-        default=True
+        description="Apply Data to attribute.",
+        items=[('OP1', "Conformal", ""),
+               ('OP2', "Angle-Based", ""),
+               ]
     )
 
 
+# ------------------------------------------------------------------------
+#    Unregistration
+# ------------------------------------------------------------------------
 def unregister():
+    # bpy.utils.unregister_class(DrawLines)
+    bpy.utils.unregister_class(QuickUnwrapPanel)
+    bpy.utils.unregister_class(ClearSharp)
+    bpy.utils.unregister_class(ClearSeams)
+    bpy.utils.unregister_class(UnwrapSelected)
+    bpy.utils.unregister_class(SharpenSlider)
+    bpy.utils.unregister_class(AHAutoSmooth)
+    bpy.utils.unregister_class(ApplyTransformsOperator)
+    bpy.utils.unregister_class(ApplyLocationOperator)
+    bpy.utils.unregister_class(ApplyRotationOperator)
+    bpy.utils.unregister_class(ApplyScaleOperator)
+    """bpy.utils.unregister_class(JoinObjects)"""
 
-    for cls in classes:
-        bpy.utils.unregister_class(cls)
 
-
+# honestly not sure wtf this is
 if __name__ == "__main__":
     register()
