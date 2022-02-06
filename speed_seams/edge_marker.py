@@ -44,6 +44,7 @@ class QuickUnwrapPanel(bpy.types.Panel):
         col = split.column(align=True)
 
         if obj is not None:
+            col.scale_y = 1.3
             if len(objs) is not 0:
                 col.enabled = True
 
@@ -57,11 +58,11 @@ class QuickUnwrapPanel(bpy.types.Panel):
             col.operator(AHAutoSmooth.bl_idname)
             col.separator()
             #col2 = layout.split(align=True)
-            col.operator(ClearSharp.bl_idname)
-            col.operator(ClearSeams.bl_idname)
+            col.operator(ClearSharp.bl_idname, icon='PMARKER_SEL')
+            col.operator(ClearSeams.bl_idname, icon='PMARKER_ACT')
             col.separator()
             col.prop(obj, 'unwrapAlgorithm')
-            col.operator(UnwrapSelected.bl_idname)
+            col.operator(UnwrapSelected.bl_idname, icon='MOD_UVPROJECT')
             col.separator()
             col.label(text="Apply Transforms")
             col.operator(ApplyTransformsOperator.bl_idname)
