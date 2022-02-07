@@ -5,7 +5,7 @@ import bpy
 bl_info = {
     "name": "Speed Seams",
     "author": "Alex Hallenbeck",
-    "version": (0, 3, 3),
+    "version": (0, 4, 3),
     "blender": (3, 0, 0),
     "location": "View3D > Sidebar > Speed Seams",
     "description": "",
@@ -20,7 +20,8 @@ bl_info = {
 if __package__ != "speed_seams":
     sys.modules["speed_seams"] = sys.modules[__package__]
 
-modulesNames = ['speed_seams_panel', 'edge_marker', 'apply_transforms', ]
+modulesNames = ['speed_seams_panel', 'edge_marker',
+                'apply_transforms', 'grease_pencil']
 
 #-----------------------------------------------------#
 #     imports

@@ -4,7 +4,7 @@
 
 import bpy
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
-from . import edge_marker, apply_transforms
+from . import edge_marker, apply_transforms, grease_pencil
 
 # ------------------------------------------------------------------------
 #    Classes
@@ -61,6 +61,8 @@ class SpeedSeamsPanel(bpy.types.Panel):
                              icon='MARKER_HLT')
                 col.operator(edge_marker.ClearSeams.bl_idname, icon='MARKER')
                 col.separator()
+                col.operator(
+                    grease_pencil.HighlightUnifiedEdges.bl_idname, icon='MOD_SOLIDIFY')
 
                 # Apply Transforms Buttons
                 col.label(text="Apply Transforms")
