@@ -43,27 +43,35 @@ class SPEEDSEAMS_OT_drawOverlay(bpy.types.Operator):
     def execute(self, context):
         shader = gpu.shader.from_builtin("3D_UNIFORM_COLOR")
         ob = bpy.context.object
-        old = ob
         mat = ob.matrix_world
         if bpy.context.mode != 'EDIT_MESH':
             bpy.ops.object.editmode_toggle()
         bm = bmesh.from_edit_mesh(ob.data)
+        bpy.ops.mesh.select_all(action='DESELECT')
       
         def get_coords():
-            return [mat @ v.co for v in bm.verts]
+            for e in bm.edges:
+                if not e.smooth:
+                    e.select = True
+                else:
+                    e.select = False
+            list = [v for v in bm.verts if v.select]
+            for v in list:
+               print(v)
+            return [mat @ v.co for v in list]
         r, g, b, a = 1.0, 1.0, 0.0, 1.0
     
-        def draw(): # not working? getting an error every tick
+        def draw(): # GPU shader tries to render
             if bpy.context.mode == 'EDIT_MESH':
                 edgeindices = [(v.index for v in e.verts) for e in bm.edges]
                 batch = batch_for_shader(
                     shader, 'LINES', {"pos": get_coords()}, indices=edgeindices)
+                bgl.glLineWidth(10)
                 shader.bind()
                 color = shader.uniform_from_name("color")
                 shader.uniform_vector_float(color, pack("4f", r, g, b, a), 4)
                 batch.draw(shader)
-                bgl.glLineWidth(10) 
-        
+                
         bpy._ahGLDrawing = bpy.types.SpaceView3D.draw_handler_add(
                 draw, (), 'WINDOW', 'POST_VIEW')
 
