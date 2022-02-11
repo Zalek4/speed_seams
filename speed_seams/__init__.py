@@ -20,8 +20,8 @@ bl_info = {
 if __package__ != "speed_seams":
     sys.modules["speed_seams"] = sys.modules[__package__]
 
-modulesNames = ['speed_seams_panel', 'edge_marker',
-                'apply_transforms', 'grease_pencil', 'gpu_overlay', ]
+modulesNames = ['panels', 'op_edge_marker',
+                'op_apply_transforms', 'op_grease_pencil', ]
 
 #-----------------------------------------------------#
 #     imports
