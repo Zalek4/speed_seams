@@ -21,7 +21,7 @@ if __package__ != "speed_seams":
     sys.modules["speed_seams"] = sys.modules[__package__]
 
 modulesNames = ['panels', 'op_edge_marker',
-                'op_apply_transforms', 'op_grease_pencil', ]
+                'op_apply_transforms', 'op_grease_pencil','op_gpu_overlay' ]
 
 #-----------------------------------------------------#
 #     imports

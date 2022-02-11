@@ -5,7 +5,7 @@
 import bpy
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
 #import gpu_lines
-from . import op_apply_transforms, op_edge_marker, op_grease_pencil
+from . import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_grease_pencil
 
 # ------------------------------------------------------------------------
 #    Classes
@@ -16,6 +16,7 @@ from . import op_apply_transforms, op_edge_marker, op_grease_pencil
 
 class SpeedSeamsPanel(bpy.types.Panel):
     bl_label = "Speed Seams"
+    bl_idname = "SPEEDSEAMS_PT_mainPanel"
     bl_category = "Speed Seams"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
@@ -63,12 +64,14 @@ class SpeedSeamsPanel(bpy.types.Panel):
                 col.operator(
                     op_edge_marker.SPEEDSEAMS_OT_ClearSeams.bl_idname, icon='MARKER')
                 col.separator()
-                """col.operator(
-                    op_grease_pencil.HighlightUnifiedEdges.bl_idname, icon='MOD_SOLIDIFY')
-                col.operator(
-                    gpu_overlay.GpuOverlay.bl_idname, icon='MOD_SOLIDIFY')
-                col.operator(
-                    gpu_overlay.GpuOverlayRemove.bl_idname, icon='MOD_SOLIDIFY')"""
+                #col.operator(
+                    #op_grease_pencil.HighlightUnifiedEdges.bl_idname, icon='MOD_SOLIDIFY')
+                if context.mode == 'EDIT_MESH':
+                    col.operator(
+                        op_gpu_overlay.SPEEDSEAMS_OT_drawOverlay.bl_idname, icon='MOD_SOLIDIFY')
+
+                    col.operator(
+                        op_gpu_overlay.SPEEDSEAMS_OT_removeOverlay.bl_idname, icon='MOD_SOLIDIFY')
 
                 # Apply Transforms Buttons
                 col.label(text="Apply Transforms")
