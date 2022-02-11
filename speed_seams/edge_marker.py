@@ -268,20 +268,6 @@ class SharpenSlider(bpy.types.Operator):
         else:
             print("DID NOT MARK UV SEAMS")
 
-        # Unwrap the object if checkbox is filled
-        """if Var_RealtimeUnwrap == True:
-            bpy.ops.mesh.select_all(action='SELECT')
-            bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.01)
-            bpy.ops.uv.select_all(action='SELECT')
-            bpy.ops.uv.average_islands_scale()
-            bpy.ops.uv.pack_islands(rotate=True, margin=0.01)
-            bpy.ops.uv.select_all(action='DESELECT')
-            bpy.context.scene.tool_settings.uv_select_mode = ('ISLAND')
-            print("Realtime Unwrap Active")
-
-        else:
-            print("Realtime Unwrap is not checked")"""
-
         return None
 
 # Logic for "Smooth All" button

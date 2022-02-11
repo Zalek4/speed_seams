@@ -4,7 +4,8 @@
 
 import bpy
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
-from . import edge_marker, apply_transforms, grease_pencil
+#import gpu_lines
+from . import edge_marker, apply_transforms, grease_pencil, gpu_overlay
 
 # ------------------------------------------------------------------------
 #    Classes
@@ -63,6 +64,10 @@ class SpeedSeamsPanel(bpy.types.Panel):
                 col.separator()
                 col.operator(
                     grease_pencil.HighlightUnifiedEdges.bl_idname, icon='MOD_SOLIDIFY')
+                col.operator(
+                    gpu_overlay.GpuOverlay.bl_idname, icon='MOD_SOLIDIFY')
+                col.operator(
+                    gpu_overlay.GpuOverlayRemove.bl_idname, icon='MOD_SOLIDIFY')
 
                 # Apply Transforms Buttons
                 col.label(text="Apply Transforms")
