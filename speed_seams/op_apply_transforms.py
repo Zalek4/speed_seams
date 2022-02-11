@@ -9,8 +9,8 @@ import bpy
 # ------------------------------------------------------------------------
 
 
-class ApplyTransformsOperator(bpy.types.Operator):
-    bl_idname = "do.ah_apply_transforms"
+class SPEEDSEAMS_OT_Apply_Transforms(bpy.types.Operator):
+    bl_idname = "apply.transforms"
     bl_label = "All Transforms"
     bl_description = "Applies selected transforms for the selected object"
 
@@ -33,8 +33,8 @@ class ApplyTransformsOperator(bpy.types.Operator):
 # Logic for "Apply Location" button
 
 
-class ApplyLocationOperator(bpy.types.Operator):
-    bl_idname = "do.ah_apply_location"
+class SPEEDSEAMS_OT_ApplyLocation(bpy.types.Operator):
+    bl_idname = "apply.location"
     bl_label = "Location"
     bl_description = "Applies the location of the selected object"
 
@@ -57,8 +57,8 @@ class ApplyLocationOperator(bpy.types.Operator):
 # Logic for "Apply Rotation" button
 
 
-class ApplyRotationOperator(bpy.types.Operator):
-    bl_idname = "do.ah_apply_rotation"
+class SPEEDSEAMS_OT_ApplyRotation(bpy.types.Operator):
+    bl_idname = "apply.rotation"
     bl_label = "Rotation"
     bl_description = "Applies the rotation of the selected object"
 
@@ -81,8 +81,8 @@ class ApplyRotationOperator(bpy.types.Operator):
 # Logic for "Apply Scale" button
 
 
-class ApplyScaleOperator(bpy.types.Operator):
-    bl_idname = "do.ah_apply_scale"
+class SPEEDSEAMS_OT_ApplyScale(bpy.types.Operator):
+    bl_idname = "apply.scale"
     bl_label = "Scale"
     bl_description = "Applies the scale of the selected object"
 
@@ -103,8 +103,8 @@ class ApplyScaleOperator(bpy.types.Operator):
         return {'FINISHED'}
 
 
-classes = (ApplyTransformsOperator, ApplyLocationOperator,
-           ApplyRotationOperator, ApplyScaleOperator)
+classes = (SPEEDSEAMS_OT_Apply_Transforms, SPEEDSEAMS_OT_ApplyLocation,
+           SPEEDSEAMS_OT_ApplyRotation, SPEEDSEAMS_OT_ApplyScale)
 
 
 def register():

@@ -13,8 +13,8 @@ from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, 
 # Logic for "Clear Sharp" button
 
 
-class ClearSharp(bpy.types.Operator):
-    bl_idname = "do.clear_sharp"
+class SPEEDSEAMS_OT_ClearSharpEdges(bpy.types.Operator):
+    bl_idname = "clear.sharp_edges"
     bl_label = "Clear Sharp"
     bl_description = "Clears the selected object's sharp edges"
 
@@ -46,8 +46,8 @@ class ClearSharp(bpy.types.Operator):
 # Logic for "Clear UV Seams" button
 
 
-class ClearSeams(bpy.types.Operator):
-    bl_idname = "do.clear_seams"
+class SPEEDSEAMS_OT_ClearSeams(bpy.types.Operator):
+    bl_idname = "clear.seams"
     bl_label = "Clear UV Seams"
     bl_description = "Clears the selected object's UV seams"
 
@@ -80,8 +80,8 @@ class ClearSeams(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MarkSharpAsSeams(bpy.types.Operator):
-    bl_idname = "do.mark_sharp_as_seams"
+class SPEEDSEAMS_OT_MarkSharpAsSeams(bpy.types.Operator):
+    bl_idname = "mark.sharp_as_seams"
     bl_label = "Mark Sharp as Seams"
     bl_description = "Marks current sharp edges as UV seams"
 
@@ -162,8 +162,8 @@ class MarkSharpAsSeams(bpy.types.Operator):
 # Logic for "Unwrap the Selected Object" button
 
 
-class UnwrapSelected(bpy.types.Operator):
-    bl_idname = "do.ah_unwrap"
+class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
+    bl_idname = "unwrap.selected"
     bl_label = "Unwrap Object"
     bl_description = "Unwraps, averages, and packs UVs"
 
@@ -207,8 +207,8 @@ class UnwrapSelected(bpy.types.Operator):
 # Logic for "Smoothing Angle" slider
 
 
-class SharpenSlider(bpy.types.Operator):
-    bl_idname = "do.ah_smooth"
+class SPEEDSEAMS_OT_SharpenSlider(bpy.types.Operator):
+    bl_idname = "sharpen.slider"
     bl_label = "Smooth and Sharpen"
     bl_description = "Sets 'Autosmooth' and 'Sharp Edges' at slider angle"
     bl_context = 'mesh_edit'
@@ -268,27 +268,13 @@ class SharpenSlider(bpy.types.Operator):
         else:
             print("DID NOT MARK UV SEAMS")
 
-        # Unwrap the object if checkbox is filled
-        """if Var_RealtimeUnwrap == True:
-            bpy.ops.mesh.select_all(action='SELECT')
-            bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.01)
-            bpy.ops.uv.select_all(action='SELECT')
-            bpy.ops.uv.average_islands_scale()
-            bpy.ops.uv.pack_islands(rotate=True, margin=0.01)
-            bpy.ops.uv.select_all(action='DESELECT')
-            bpy.context.scene.tool_settings.uv_select_mode = ('ISLAND')
-            print("Realtime Unwrap Active")
-
-        else:
-            print("Realtime Unwrap is not checked")"""
-
         return None
 
 # Logic for "Smooth All" button
 
 
-class AHAutoSmooth(bpy.types.Operator):
-    bl_idname = "do.ah_autosmooth"
+class SPEEDSEAMS_OT_AutoSmooth(bpy.types.Operator):
+    bl_idname = "auto.smooth"
     bl_label = "Smooth All"
     bl_description = "Enables Autosmooth at an angle of 180 degrees"
 
@@ -320,8 +306,8 @@ class AHAutoSmooth(bpy.types.Operator):
         return {'FINISHED'}
 
 
-classes = (AHAutoSmooth, SharpenSlider, UnwrapSelected,
-           ClearSeams, ClearSharp, MarkSharpAsSeams, )
+classes = (SPEEDSEAMS_OT_ClearSharpEdges, SPEEDSEAMS_OT_ClearSeams, SPEEDSEAMS_OT_MarkSharpAsSeams,
+           SPEEDSEAMS_OT_UnwrapSelected, SPEEDSEAMS_OT_SharpenSlider, SPEEDSEAMS_OT_AutoSmooth, )
 
 
 def register():

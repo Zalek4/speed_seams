@@ -4,7 +4,8 @@
 
 import bpy
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
-from . import edge_marker, apply_transforms
+#import gpu_lines
+from . import op_apply_transforms, op_edge_marker, op_grease_pencil
 
 # ------------------------------------------------------------------------
 #    Classes
@@ -36,7 +37,7 @@ class SpeedSeamsPanel(bpy.types.Panel):
                 col.label(text="Smoothing and UVs")
                 col.scale_y = .3
                 row.prop(obj, 'unwrapAlgorithm')
-                row.operator(edge_marker.UnwrapSelected.bl_idname,
+                row.operator(op_edge_marker.SPEEDSEAMS_OT_UnwrapSelected.bl_idname,
                              icon='MOD_UVPROJECT')
                 row.scale_y = scale
 
@@ -52,30 +53,37 @@ class SpeedSeamsPanel(bpy.types.Panel):
 
                 row = split.row(align=False)
                 col = split.column(align=True)
-                col.operator(edge_marker.AHAutoSmooth.bl_idname,
+                col.operator(op_edge_marker.SPEEDSEAMS_OT_AutoSmooth.bl_idname,
                              icon='PROP_CON')
-                col.operator(edge_marker.MarkSharpAsSeams.bl_idname,
+                col.operator(op_edge_marker.SPEEDSEAMS_OT_MarkSharpAsSeams.bl_idname,
                              icon='PMARKER_ACT')
                 # col.operator(edge_marker.MarkSeamsAsSharp.bl_idname)
-                col.operator(edge_marker.ClearSharp.bl_idname,
+                col.operator(op_edge_marker.SPEEDSEAMS_OT_ClearSharpEdges.bl_idname,
                              icon='MARKER_HLT')
-                col.operator(edge_marker.ClearSeams.bl_idname, icon='MARKER')
+                col.operator(
+                    op_edge_marker.SPEEDSEAMS_OT_ClearSeams.bl_idname, icon='MARKER')
                 col.separator()
+                """col.operator(
+                    op_grease_pencil.HighlightUnifiedEdges.bl_idname, icon='MOD_SOLIDIFY')
+                col.operator(
+                    gpu_overlay.GpuOverlay.bl_idname, icon='MOD_SOLIDIFY')
+                col.operator(
+                    gpu_overlay.GpuOverlayRemove.bl_idname, icon='MOD_SOLIDIFY')"""
 
                 # Apply Transforms Buttons
                 col.label(text="Apply Transforms")
                 col.scale_y = scale
                 row = split.row(align=True)
                 row.operator(
-                    apply_transforms.ApplyTransformsOperator.bl_idname, icon='STICKY_UVS_DISABLE')
+                    op_apply_transforms.SPEEDSEAMS_OT_Apply_Transforms.bl_idname, icon='STICKY_UVS_DISABLE')
                 row.operator(
-                    apply_transforms.ApplyLocationOperator.bl_idname, icon='ORIENTATION_VIEW')
+                    op_apply_transforms.SPEEDSEAMS_OT_ApplyLocation.bl_idname, icon='ORIENTATION_VIEW')
                 row.scale_y = scale
                 row = split.row(align=True)
                 row.operator(
-                    apply_transforms.ApplyRotationOperator.bl_idname, icon='ORIENTATION_GIMBAL')
+                    op_apply_transforms.SPEEDSEAMS_OT_ApplyRotation.bl_idname, icon='ORIENTATION_GIMBAL')
                 row.operator(
-                    apply_transforms.ApplyScaleOperator.bl_idname, icon='CON_CHILDOF')
+                    op_apply_transforms.SPEEDSEAMS_OT_ApplyScale.bl_idname, icon='CON_CHILDOF')
                 row.scale_y = scale
 
             else:
@@ -115,7 +123,7 @@ def register():
         min=1,
         max=180,
         step=0.5,
-        update=edge_marker.SharpenSlider.execute
+        update=op_edge_marker.SPEEDSEAMS_OT_SharpenSlider.execute
     )
 
     bpy.types.Object.seamBool = BoolProperty(
