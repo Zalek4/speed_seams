@@ -2,6 +2,8 @@
 import importlib
 import sys
 import bpy
+from bpy.props import PointerProperty, BoolProperty
+
 bl_info = {
     "name": "Speed Seams",
     "author": "Alex Hallenbeck, Blake Darrow",

@@ -10,8 +10,6 @@ from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, 
 #    Classes
 # ------------------------------------------------------------------------
 
-# Logic for "Clear Sharp" button
-
 
 class SPEEDSEAMS_OT_ClearSharpEdges(bpy.types.Operator):
     bl_idname = "clear.sharp_edges"
@@ -43,16 +41,11 @@ class SPEEDSEAMS_OT_ClearSharpEdges(bpy.types.Operator):
         self.report({'INFO'}, "Cleared Sharp Edges")
         return {'FINISHED'}
 
-# Logic for "Clear UV Seams" button
-
 
 class SPEEDSEAMS_OT_ClearSeams(bpy.types.Operator):
     bl_idname = "clear.seams"
     bl_label = "Clear UV Seams"
     bl_description = "Clears the selected object's UV seams"
-
-    #FloatValue = bpy.context.object.smoothingAngle
-    #print("Initial Button Value =", FloatValue)
 
     # Executes automation after button press
     def execute(self, context):
@@ -85,9 +78,6 @@ class SPEEDSEAMS_OT_MarkSharpAsSeams(bpy.types.Operator):
     bl_label = "Mark Sharp as Seams"
     bl_description = "Marks current sharp edges as UV seams"
 
-    #FloatValue = bpy.context.object.smoothingAngle
-    #print("Initial Button Value =", FloatValue)
-
     # Executes automation after button press
 
     def execute(self, context):
@@ -118,48 +108,6 @@ class SPEEDSEAMS_OT_MarkSharpAsSeams(bpy.types.Operator):
 
         self.report({'INFO'}, "Marked Sharp Edges as Seams")
         return {'FINISHED'}
-
-
-"""class MarkSeamsAsSharp(bpy.types.Operator):
-    bl_idname = "do.mark_seams_as_sharp"
-    bl_label = "Mark Seams as Sharp"
-    bl_description = "Marks current UV seams as sharp edges"
-
-    #FloatValue = bpy.context.object.smoothingAngle
-    #print("Initial Button Value =", FloatValue)
-
-    # Executes automation after button press
-
-    def execute(self, context):
-
-        obj = bpy.context.active_object
-        me = bpy.context.object.data
-        #bm = bmesh.from_edit_mesh(me)
-
-        if context.mode == 'OBJECT':
-            bpy.ops.object.editmode_toggle()
-            bm = bmesh.from_edit_mesh(me)
-
-            for e in bm.edges:
-                if e.seam:
-                    e.select = True
-                    e.smooth = False
-
-            bmesh.update_edit_mesh(me, False)
-            bpy.ops.object.editmode_toggle()
-
-        else:
-            bm = bmesh.from_edit_mesh(me)
-            for e in bm.edges:
-                if e.seam:
-                    e.select = True
-                    e.smooth = False
-            bmesh.update_edit_mesh(me, False)
-
-        self.report({'INFO'}, "Marked Seams as Sharp")
-        return {'FINISHED'}"""
-
-# Logic for "Unwrap the Selected Object" button
 
 
 class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
@@ -204,17 +152,12 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
 
         return {'FINISHED'}
 
-# Logic for "Smoothing Angle" slider
-
 
 class SPEEDSEAMS_OT_SharpenSlider(bpy.types.Operator):
     bl_idname = "sharpen.slider"
     bl_label = "Smooth and Sharpen"
     bl_description = "Sets 'Autosmooth' and 'Sharp Edges' at slider angle"
     bl_context = 'mesh_edit'
-
-    #FloatValue = bpy.context.object.smoothingAngle
-    #print("Initial Button Value =", FloatValue)
 
     # Executes automation after button press
     def execute(self, context):
@@ -270,8 +213,6 @@ class SPEEDSEAMS_OT_SharpenSlider(bpy.types.Operator):
 
         return None
 
-# Logic for "Smooth All" button
-
 
 class SPEEDSEAMS_OT_AutoSmooth(bpy.types.Operator):
     bl_idname = "auto.smooth"
@@ -304,3 +245,32 @@ class SPEEDSEAMS_OT_AutoSmooth(bpy.types.Operator):
 
         self.report({'INFO'}, "Smoothed!")
         return {'FINISHED'}
+
+
+# ------------------------------------------------------------------------
+#    Properties
+# ------------------------------------------------------------------------
+
+smoothingAngle = bpy.props.FloatProperty(
+    name="Sharp Edge Angle",
+    description="Angle to use for smoothing",
+    default=35,
+    min=1,
+    max=180,
+    step=0.5,
+    update=SPEEDSEAMS_OT_SharpenSlider.execute
+)
+
+seamBool = bpy.props.BoolProperty(
+    name="Mark Sharp as Seams",
+    description="Marks sharp edges as seams as angle slider updates",
+    default=False
+)
+
+unwrapAlgorithm = bpy.props.EnumProperty(
+    name="",
+    description="Apply Data to attribute.",
+    items=[('OP1', "Conformal", ""),
+           ('OP2', "Angle-Based", ""),
+           ]
+)

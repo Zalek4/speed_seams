@@ -5,6 +5,7 @@ import bpy
 from bpy.types import Menu
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
 from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_grease_pencil
+from ..operators.op_edge_marker import seamBool, unwrapAlgorithm, smoothingAngle
 
 # ------------------------------------------------------------------------
 #    Classes
@@ -47,8 +48,6 @@ class SpeedSeamsPanel(bpy.types.Panel):
 
                 row = split.row(align=True)
                 row.prop(obj, 'seamBool')
-                #row.prop(obj, 'realtimeUnwrap')
-                #col.scale_y = 1
                 row.scale_y = scale / 1.2
 
                 row = split.row(align=False)
@@ -57,14 +56,11 @@ class SpeedSeamsPanel(bpy.types.Panel):
                              icon='PROP_CON')
                 col.operator(op_edge_marker.SPEEDSEAMS_OT_MarkSharpAsSeams.bl_idname,
                              icon='PMARKER_ACT')
-                # col.operator(edge_marker.MarkSeamsAsSharp.bl_idname)
                 col.operator(op_edge_marker.SPEEDSEAMS_OT_ClearSharpEdges.bl_idname,
                              icon='MARKER_HLT')
                 col.operator(
                     op_edge_marker.SPEEDSEAMS_OT_ClearSeams.bl_idname, icon='MARKER')
                 col.separator()
-                # col.operator(
-                # op_grease_pencil.HighlightUnifiedEdges.bl_idname, icon='MOD_SOLIDIFY')
                 if context.mode == 'EDIT_MESH':
                     col.operator(
                         op_gpu_overlay.SPEEDSEAMS_OT_drawOverlay.bl_idname, icon='MOD_SOLIDIFY')
@@ -115,30 +111,3 @@ class SpeedSeamsPie(Menu):
         pie = layout.menu_pie()
 
         pie.operator_enum("mesh.select_mode", "type")
-
-
-def register():
-
-    smoothingAngle = FloatProperty(
-        name="Sharp Edge Angle",
-        description="Angle to use for smoothing",
-        default=35,
-        min=1,
-        max=180,
-        step=0.5,
-        update=op_edge_marker.SPEEDSEAMS_OT_SharpenSlider.execute
-    )
-
-    unwrapBool = BoolProperty(
-        name="Unwrap Selected Objects",
-        description="Unwraps the selected objects and packs them conformally",
-        default=False
-    )
-
-    unwrapAlgorithm = EnumProperty(
-        name="",
-        description="Apply Data to attribute.",
-        items=[('OP1', "Conformal", ""),
-               ('OP2', "Angle-Based", ""),
-               ]
-    )
