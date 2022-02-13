@@ -33,12 +33,12 @@ from struct import pack
 #    handles
 #-----------------------------------------------------#
 
+
 class SPEEDSEAMS_OT_drawOverlay(bpy.types.Operator):
     bl_idname = "draw.gpu_handle"
     bl_description = ""
     bl_label = "Display Edges"
     bl_options = {'REGISTER', 'UNDO'}  # Enable undo for the operator
-    
 
     def execute(self, context):
         shader = gpu.shader.from_builtin("3D_UNIFORM_COLOR")
@@ -49,6 +49,7 @@ class SPEEDSEAMS_OT_drawOverlay(bpy.types.Operator):
         bm = bmesh.from_edit_mesh(ob.data)
         bpy.ops.mesh.select_all(action='DESELECT')
         sel = []
+
         def get_coords():
             for e in bm.edges:
                 if not e.smooth:
@@ -60,18 +61,19 @@ class SPEEDSEAMS_OT_drawOverlay(bpy.types.Operator):
             return [mat @ v.co for v in list]
         get_coords()
 
-        edgeindices = [(v.index for v in e.verts) for e in bm.edges if e.select]
+        edgeindices = [(v.index for v in e.verts)
+                       for e in bm.edges if e.select]
         batch = batch_for_shader(
             shader, 'LINES', {"pos": get_coords()}, indices=edgeindices)
         r, g, b, a = 1.0, 1.0, 0.0, 1.0
-    
+
         try:
             bpy.types.SpaceView3D.draw_handler_remove(
                 bpy._ahGLDrawing, 'WINDOW')
             print("Attempting to remove existing overlay")
         except:
             print("No drawing to remove")
-                        
+
         def draw():
             if bpy.context.mode == 'EDIT_MESH':
                 bgl.glLineWidth(10)
@@ -80,9 +82,9 @@ class SPEEDSEAMS_OT_drawOverlay(bpy.types.Operator):
                 shader.uniform_vector_float(color, pack("4f", r, g, b, a), 4)
                 batch.draw(shader)
 
-        if len(get_coords()) is not 0: 
+        if len(get_coords()) is not 0:
             bpy._ahGLDrawing = bpy.types.SpaceView3D.draw_handler_add(
-                    draw, (), 'WINDOW', 'POST_VIEW')
+                draw, (), 'WINDOW', 'POST_VIEW')
         else:
             self.report({'INFO'}, "No conditions met to display overlay")
         return {'FINISHED'}
@@ -90,6 +92,7 @@ class SPEEDSEAMS_OT_drawOverlay(bpy.types.Operator):
 #-----------------------------------------------------#
 #    handles removing
 #-----------------------------------------------------#
+
 
 class SPEEDSEAMS_OT_removeOverlay(bpy.types.Operator):
     bl_idname = "draw.remove_handle"
@@ -108,27 +111,6 @@ class SPEEDSEAMS_OT_removeOverlay(bpy.types.Operator):
             print("No drawing to remove")
         self.report({'INFO'}, "None overlay to remove")
         return {'FINISHED'}
-
-#-----------------------------------------------------#
-#   Registration classes
-#-----------------------------------------------------#
-
-classes = (SPEEDSEAMS_OT_drawOverlay, SPEEDSEAMS_OT_removeOverlay)
-
-
-def register():
-    for cls in classes:
-        bpy.utils.register_class(cls)
-
-
-def unregister():
-
-    for cls in classes:
-        bpy.utils.unregister_class(cls)
-
-
-if __name__ == "__main__":
-    register()
 
 
 # import bpy

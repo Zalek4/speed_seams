@@ -304,17 +304,3 @@ class SPEEDSEAMS_OT_AutoSmooth(bpy.types.Operator):
 
         self.report({'INFO'}, "Smoothed!")
         return {'FINISHED'}
-
-
-classes = (SPEEDSEAMS_OT_ClearSharpEdges, SPEEDSEAMS_OT_ClearSeams, SPEEDSEAMS_OT_MarkSharpAsSeams,
-           SPEEDSEAMS_OT_UnwrapSelected, SPEEDSEAMS_OT_SharpenSlider, SPEEDSEAMS_OT_AutoSmooth, )
-
-
-def register():
-    for cls in classes:
-        bpy.utils.register_class(cls)
-
-
-def unregister():
-    for cls in classes:
-        bpy.utils.unregister_class(cls)

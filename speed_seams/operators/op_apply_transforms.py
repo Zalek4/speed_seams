@@ -101,22 +101,3 @@ class SPEEDSEAMS_OT_ApplyScale(bpy.types.Operator):
         self.report({'INFO'}, "Applied Scale")
 
         return {'FINISHED'}
-
-
-classes = (SPEEDSEAMS_OT_Apply_Transforms, SPEEDSEAMS_OT_ApplyLocation,
-           SPEEDSEAMS_OT_ApplyRotation, SPEEDSEAMS_OT_ApplyScale)
-
-
-def register():
-    for cls in classes:
-        bpy.utils.register_class(cls)
-
-
-def unregister():
-    for cls in classes:
-        bpy.utils.unregister_class(cls)
-
-
-# honestly not sure wtf this is
-if __name__ == "__main__":
-    register()

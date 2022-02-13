@@ -1,11 +1,10 @@
 # ------------------------------------------------------------------------
 #    Imports
 # ------------------------------------------------------------------------
-
 import bpy
+from bpy.types import Menu
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
-#import gpu_lines
-from . import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_grease_pencil
+from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_grease_pencil
 
 # ------------------------------------------------------------------------
 #    Classes
@@ -25,18 +24,18 @@ class SpeedSeamsPanel(bpy.types.Panel):
         layout = self.layout
         obj = context.object
         objs = context.selected_objects
-        split = layout.box()
-        col = split.column(align=True)
-        split = layout.box()
-        row = split.row(align=True)
-        scale = 1.3
 
         if obj is not None:
 
             if len(objs) is not 0:
 
+                split = layout.box()
+                col = split.column(align=True)
+                split = layout.box()
+                row = split.row(align=True)
+                scale = 1.3
+
                 col.label(text="Smoothing and UVs")
-                col.scale_y = .3
                 row.prop(obj, 'unwrapAlgorithm')
                 row.operator(op_edge_marker.SPEEDSEAMS_OT_UnwrapSelected.bl_idname,
                              icon='MOD_UVPROJECT')
@@ -64,8 +63,8 @@ class SpeedSeamsPanel(bpy.types.Panel):
                 col.operator(
                     op_edge_marker.SPEEDSEAMS_OT_ClearSeams.bl_idname, icon='MARKER')
                 col.separator()
-                #col.operator(
-                    #op_grease_pencil.HighlightUnifiedEdges.bl_idname, icon='MOD_SOLIDIFY')
+                # col.operator(
+                # op_grease_pencil.HighlightUnifiedEdges.bl_idname, icon='MOD_SOLIDIFY')
                 if context.mode == 'EDIT_MESH':
                     col.operator(
                         op_gpu_overlay.SPEEDSEAMS_OT_drawOverlay.bl_idname, icon='MOD_SOLIDIFY')
@@ -92,7 +91,7 @@ class SpeedSeamsPanel(bpy.types.Panel):
             else:
                 layout = self.layout
                 box = layout.box()
-                # box.separator()
+                box.separator()
                 box.label(text="Please select a mesh")
                 box.scale_y = .1
                 # box.separator()
@@ -104,22 +103,23 @@ class SpeedSeamsPanel(bpy.types.Panel):
         return context.mode in {'EDIT_MESH', 'OBJECT'}
 
 
-# ------------------------------------------------------------------------
-#    Registration
-# ------------------------------------------------------------------------
+class SpeedSeamsPie(Menu):
+    bl_label = "Speed Seams"
+    bl_idname = "SPEEDSEAMS_PT_pieMenu"
+    bl_category = "Speed Seams"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
 
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
 
-classes = (SpeedSeamsPanel,)
+        pie.operator_enum("mesh.select_mode", "type")
 
 
 def register():
-    for cls in classes:
-        bpy.utils.register_class(cls)
 
-    # ------------------------------------------------------------------------
-    #    Properties
-    # ------------------------------------------------------------------------
-    bpy.types.Object.smoothingAngle = FloatProperty(
+    smoothingAngle = FloatProperty(
         name="Sharp Edge Angle",
         description="Angle to use for smoothing",
         default=35,
@@ -129,41 +129,16 @@ def register():
         update=op_edge_marker.SPEEDSEAMS_OT_SharpenSlider.execute
     )
 
-    bpy.types.Object.seamBool = BoolProperty(
-        name="Mark Seams",
-        description="Marks 'Smooth and Sharpen' edges as UV seams",
-        default=False
-    )
-
-    """bpy.types.Object.realtimeUnwrap = BoolProperty(
-        name="Realtime Unwrap",
-        description="Unwraps UVs as 'Smoothing Angle' changes",
-        default=False
-    )"""
-
-    bpy.types.Object.unwrapBool = BoolProperty(
+    unwrapBool = BoolProperty(
         name="Unwrap Selected Objects",
         description="Unwraps the selected objects and packs them conformally",
         default=False
     )
 
-    bpy.types.Object.unwrapAlgorithm = EnumProperty(
+    unwrapAlgorithm = EnumProperty(
         name="",
         description="Apply Data to attribute.",
         items=[('OP1', "Conformal", ""),
                ('OP2', "Angle-Based", ""),
                ]
     )
-
-
-# ------------------------------------------------------------------------
-#    Unregistration
-# ------------------------------------------------------------------------
-def unregister():
-    for cls in classes:
-        bpy.utils.unregister_class(cls)
-
-
-# honestly not sure wtf this is
-if __name__ == "__main__":
-    register()
