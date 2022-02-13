@@ -48,7 +48,8 @@ class SPEEDSEAMS_OT_drawOverlay(bpy.types.Operator):
             bpy.ops.object.editmode_toggle()
         bm = bmesh.from_edit_mesh(ob.data)
         bpy.ops.mesh.select_all(action='DESELECT')
-      
+        edgeindices = [(v.index for v in e.verts) for e in bm.edges]
+       
         def get_coords():
             for e in bm.edges:
                 if not e.smooth:
@@ -56,25 +57,24 @@ class SPEEDSEAMS_OT_drawOverlay(bpy.types.Operator):
                 else:
                     e.select = False
             list = [v for v in bm.verts if v.select]
-            for v in list:
-               print(v)
             return [mat @ v.co for v in list]
+        batch = batch_for_shader(
+            shader, 'LINES', {"pos": get_coords()}, indices=edgeindices)
         r, g, b, a = 1.0, 1.0, 0.0, 1.0
     
         def draw(): # GPU shader tries to render
             if bpy.context.mode == 'EDIT_MESH':
-                edgeindices = [(v.index for v in e.verts) for e in bm.edges]
-                batch = batch_for_shader(
-                    shader, 'LINES', {"pos": get_coords()}, indices=edgeindices)
                 bgl.glLineWidth(10)
                 shader.bind()
                 color = shader.uniform_from_name("color")
                 shader.uniform_vector_float(color, pack("4f", r, g, b, a), 4)
                 batch.draw(shader)
-                
-        bpy._ahGLDrawing = bpy.types.SpaceView3D.draw_handler_add(
-                draw, (), 'WINDOW', 'POST_VIEW')
 
+        if len(get_coords()) is not 0: 
+            bpy._ahGLDrawing = bpy.types.SpaceView3D.draw_handler_add(
+                    draw, (), 'WINDOW', 'POST_VIEW')
+        else:
+            self.report({'INFO'}, "No conditions met to display overlay")
         return {'FINISHED'}
 
 #-----------------------------------------------------#
@@ -96,7 +96,7 @@ class SPEEDSEAMS_OT_removeOverlay(bpy.types.Operator):
                     area.tag_redraw()
         except:
             print("No drawing to remove")
-        self.report({'INFO'}, "None Selected")
+        self.report({'INFO'}, "None overlay to remove")
         return {'FINISHED'}
 
 #-----------------------------------------------------#
