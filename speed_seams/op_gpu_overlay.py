@@ -48,21 +48,31 @@ class SPEEDSEAMS_OT_drawOverlay(bpy.types.Operator):
             bpy.ops.object.editmode_toggle()
         bm = bmesh.from_edit_mesh(ob.data)
         bpy.ops.mesh.select_all(action='DESELECT')
-        edgeindices = [(v.index for v in e.verts) for e in bm.edges]
-       
+        sel = []
         def get_coords():
             for e in bm.edges:
                 if not e.smooth:
                     e.select = True
+                    sel.append(e)
                 else:
                     e.select = False
             list = [v for v in bm.verts if v.select]
             return [mat @ v.co for v in list]
+        get_coords()
+
+        edgeindices = [(v.index for v in e.verts) for e in bm.edges if e.select]
         batch = batch_for_shader(
             shader, 'LINES', {"pos": get_coords()}, indices=edgeindices)
         r, g, b, a = 1.0, 1.0, 0.0, 1.0
     
-        def draw(): # GPU shader tries to render
+        try:
+            bpy.types.SpaceView3D.draw_handler_remove(
+                bpy._ahGLDrawing, 'WINDOW')
+            print("Attempting to remove existing overlay")
+        except:
+            print("No drawing to remove")
+                        
+        def draw():
             if bpy.context.mode == 'EDIT_MESH':
                 bgl.glLineWidth(10)
                 shader.bind()
