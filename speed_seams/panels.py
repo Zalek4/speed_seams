@@ -5,7 +5,7 @@ import bpy
 from bpy.types import Menu
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
 from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_grease_pencil
-from ..operators.op_edge_marker import seamBool, unwrapAlgorithm, smoothingAngle
+from . import SpeedSeamsSettings
 
 # ------------------------------------------------------------------------
 #    Classes
