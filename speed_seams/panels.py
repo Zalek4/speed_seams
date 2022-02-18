@@ -4,7 +4,7 @@
 import bpy
 from bpy.types import Menu
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
-from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_grease_pencil
+from . import op_apply_transforms, op_edge_marker, op_gpu_overlay
 from . import SpeedSeamsSettings
 
 # ------------------------------------------------------------------------
@@ -25,6 +25,8 @@ class SpeedSeamsPanel(bpy.types.Panel):
         layout = self.layout
         obj = context.object
         objs = context.selected_objects
+        scene - context.scene
+        ss = scene.ss_settings
 
         if obj is not None:
 
