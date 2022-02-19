@@ -18,15 +18,8 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
         ss = scene.ss_settings
 
         Var_UnwrapMethod = ss.unwrapAlgorithm
-        print(Var_UnwrapMethod)
 
         bpy.context.scene.tool_settings.mesh_select_mode = (False, True, False)
-
-        if context.mode == 'OBJECT':
-            bpy.ops.object.editmode_toggle()
-
-        else:
-            print("Context is not 'Object' it is", context.mode)
 
         if Var_UnwrapMethod == 'UA1':
 
@@ -52,16 +45,35 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
         elif Var_UnwrapMethod == 'UA3':
 
             try:
+
+                #tries this first just to throw the except if it doesn't exist
+                bpy.ops.uvpackmaster3.pack(
+                    mode_id="pack.single_tile", pack_to_others=False)
+
+                #Does the real thing if it doesn't fail
                 bpy.ops.mesh.select_all(action='SELECT')
                 bpy.ops.uv.unwrap(method='CONFORMAL', margin=0.01)
                 bpy.ops.uvpackmaster3.pack(
                     mode_id="pack.single_tile", pack_to_others=False)
-                self.report({'INFO'}, "Unwrapped UVs -- UVPackmaster")
+                self.report(
+                    {'WARNING'}, "Unwraped and packed with UVPackmaster3")
                 
             except:
-                self.report({'ERROR'}, "UVPackmaster3 is not installed, or is unable to be found")
-            
-            
+
+                try:
+                    #tries this first just to throw the except if it doesn't exist
+                    bpy.ops.uvpackmaster2.uv_pack()
+
+                    #Does the real thing if it doesn't fail
+                    bpy.ops.mesh.select_all(action='SELECT')
+                    bpy.ops.uv.unwrap(method='CONFORMAL', margin=0.01)
+                    bpy.ops.uvpackmaster2.uv_pack()
+                    self.report(
+                        {'WARNING'}, "Unwraped and packed with UVPackmaster2")
+
+                except:
+                    self.report(
+                        {'ERROR'}, "No version of UVPackmaster is installed")
 
         else:
             self.report({'ERROR'}, "Unknown unwrap algorithm")
