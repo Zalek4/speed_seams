@@ -24,5 +24,5 @@ def unregister_addon():
     unregister_operators()
 
     # Menus
-    from ..menus import register_menus
-    register_menus()
+    from ..menus import unregister_menus
+    unregister_menus()

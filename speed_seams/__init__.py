@@ -28,7 +28,7 @@ bl_info = {
 
 
 class SpeedSeamsSettings(bpy.types.PropertyGroup):
-    smoothingAngle = bpy.props.FloatProperty(
+    smoothingAngle : bpy.props.FloatProperty(
         name="Sharp Edge Angle",
         description="Angle to use for smoothing",
         default=35,
@@ -38,13 +38,13 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
         update=SPEEDSEAMS_OT_SharpenSlider.execute
     )
 
-    seamBool = bpy.props.BoolProperty(
+    seamBool : bpy.props.BoolProperty(
         name="Mark Sharp as Seams",
         description="Marks sharp edges as seams as angle slider updates",
         default=False
     )
 
-    unwrapAlgorithm = bpy.props.EnumProperty(
+    unwrapAlgorithm : bpy.props.EnumProperty(
         name="",
         description="Apply Data to attribute.",
         items=[('OP1', "Conformal", ""),
