@@ -39,8 +39,14 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
     )
 
     seamBool : bpy.props.BoolProperty(
-        name="Mark Sharp as Seams",
+        name="Mark Seams",
         description="Marks sharp edges as seams as angle slider updates",
+        default=False
+    )
+
+    packmasterBool: bpy.props.BoolProperty(
+        name="UVPackmaster",
+        description="Uses UVPackmaster 2 or 3 if installed",
         default=False
     )
 
@@ -49,7 +55,6 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
         description="Apply Data to attribute.",
         items=[('UA1', "Conformal", ""),
                ('UA2', "Angle-Based", ""),
-               ('UA3', "UVPackmaster", ""),
         ]
     )
 
