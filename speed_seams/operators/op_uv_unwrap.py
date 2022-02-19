@@ -59,7 +59,7 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
                 self.report({'INFO'}, "Unwrapped UVs -- UVPackmaster")
                 
             except:
-                self.report({'ERROR'}, "UVPackmaster is not installed, or is unable to be found")
+                self.report({'ERROR'}, "UVPackmaster3 is not installed, or is unable to be found")
             
             
 
