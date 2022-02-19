@@ -9,8 +9,6 @@ bl_info = {
     "wiki_url": "",
 }
 
-import importlib
-import sys
 import bpy
 from bpy.types import (Panel,
                        Operator,
@@ -26,7 +24,7 @@ from .op_gpu_overlay import SPEEDSEAMS_OT_drawOverlay, SPEEDSEAMS_OT_removeOverl
 #     Properties
 #-----------------------------------------------------#
 
-class SpeedSeamsSettings(PropertyGroup):
+class SpeedSeamsSettings(bpy.types.PropertyGroup):
 
     smoothingAngle : bpy.props.FloatProperty(
         name="Sharp Edge Angle",
@@ -62,7 +60,7 @@ def register():
     from bpy.utils import register_class
     for cls in classes:
         register_class(cls)
-    bpy.types.Scene.ss_settings = PointerProperty(type=SpeedSeamsSettings)
+    bpy.types.Scene.ss_settings = bpy.props.PointerProperty(type=SpeedSeamsSettings)
 
 
 def unregister():
@@ -71,5 +69,5 @@ def unregister():
         unregister_class(cls)
     del bpy.types.Scene.ss_settings
 
-#if __name__ == "__main__":
-    #register()
+if __name__ == "__main__":
+    register()

@@ -5,8 +5,6 @@
 import bpy
 import bmesh
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
-from . import SpeedSeamsSettings
-
 # ------------------------------------------------------------------------
 #    Classes
 # ------------------------------------------------------------------------
@@ -117,8 +115,10 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
     bl_description = "Unwraps, averages, and packs UVs"
 
     def execute(self, context):
-
-        Var_UnwrapMethod = SpeedSeamsSettings.unwrapAlgorithm
+        scene = context.scene
+        ss = scene.ss_settings
+        
+        Var_UnwrapMethod = ss.unwrapAlgorithm
         print(Var_UnwrapMethod)
 
         bpy.context.scene.tool_settings.mesh_select_mode = (False, True, False)
@@ -162,14 +162,12 @@ class SPEEDSEAMS_OT_SharpenSlider(bpy.types.Operator):
 
     # Executes automation after button press
     def execute(self, context):
-
-        # ------------------------------------------------------------------------
-        #    Smoothing Logic
-        # ------------------------------------------------------------------------
+        scene = context.scene
+        ss = scene.ss_settings
 
         # Variables
-        Var_AngleValue = SpeedSeamsSettings.smoothingAngle
-        Var_SeamBool = SpeedSeamsSettings.seamBool
+        Var_AngleValue = ss.smoothingAngle
+        Var_SeamBool = ss.seamBool
         #Var_RealtimeUnwrap = bpy.context.object.realtimeUnwrap
 
         # Convert angle slider input to radians

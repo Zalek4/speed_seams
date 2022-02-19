@@ -5,7 +5,6 @@ import bpy
 from bpy.types import Menu
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
 from . import op_apply_transforms, op_edge_marker, op_gpu_overlay
-from . import SpeedSeamsSettings
 
 # ------------------------------------------------------------------------
 #    Classes
@@ -25,12 +24,12 @@ class SpeedSeamsPanel(bpy.types.Panel):
         layout = self.layout
         obj = context.object
         objs = context.selected_objects
-        scene - context.scene
+        scene = context.scene
         ss = scene.ss_settings
 
         if obj is not None:
 
-            if len(objs) is not 0:
+            if len(objs) != 0:
 
                 split = layout.box()
                 col = split.column(align=True)
@@ -39,17 +38,17 @@ class SpeedSeamsPanel(bpy.types.Panel):
                 scale = 1.3
 
                 col.label(text="Smoothing and UVs")
-                row.prop(obj, 'unwrapAlgorithm')
+                row.prop(ss, "unwrapAlgorithm")
                 row.operator(op_edge_marker.SPEEDSEAMS_OT_UnwrapSelected.bl_idname,
                              icon='MOD_UVPROJECT')
                 row.scale_y = scale
 
                 row = split.row(align=False)
-                row.prop(obj, 'smoothingAngle', slider=True)
+                row.prop(ss, "smoothingAngle", slider=True)
                 row.scale_y = scale
 
                 row = split.row(align=True)
-                row.prop(obj, 'seamBool')
+                row.prop(ss, "seamBool")
                 row.scale_y = scale / 1.2
 
                 row = split.row(align=False)
@@ -92,9 +91,6 @@ class SpeedSeamsPanel(bpy.types.Panel):
                 box.separator()
                 box.label(text="Please select a mesh")
                 box.scale_y = .1
-                # box.separator()
-
-            # col.operator(JoinObjects.bl_idname)
 
     @classmethod
     def poll(cls, context):
