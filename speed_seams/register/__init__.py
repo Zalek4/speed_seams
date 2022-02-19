@@ -2,7 +2,7 @@ def register_addon():
 
     # Properties
     #from ..properties import register_properties
-    # register_properties()
+    #register_properties()
 
     # Operators
     from ..operators import register_operators
@@ -17,7 +17,7 @@ def unregister_addon():
 
     # Properties
     #from ..properties import unregister_properties
-    # unregister_properties()
+    #unregister_properties()
 
     # Operators
     from ..operators import unregister_operators

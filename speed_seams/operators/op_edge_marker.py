@@ -116,8 +116,10 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
     bl_description = "Unwraps, averages, and packs UVs"
 
     def execute(self, context):
+        scene = context.scene
+        ss = scene.ss_settings
 
-        Var_UnwrapMethod = bpy.context.object.unwrapAlgorithm
+        Var_UnwrapMethod = ss.unwrapAlgorithm
         print(Var_UnwrapMethod)
 
         bpy.context.scene.tool_settings.mesh_select_mode = (False, True, False)
@@ -162,13 +164,12 @@ class SPEEDSEAMS_OT_SharpenSlider(bpy.types.Operator):
     # Executes automation after button press
     def execute(self, context):
 
-        # ------------------------------------------------------------------------
-        #    Smoothing Logic
-        # ------------------------------------------------------------------------
+        scene = context.scene
+        ss = scene.ss_settings
 
         # Variables
-        Var_AngleValue = bpy.context.object.smoothingAngle
-        Var_SeamBool = bpy.context.object.seamBool
+        Var_AngleValue = ss.smoothingAngle
+        Var_SeamBool = ss.seamBool
         #Var_RealtimeUnwrap = bpy.context.object.realtimeUnwrap
 
         # Convert angle slider input to radians
@@ -245,32 +246,3 @@ class SPEEDSEAMS_OT_AutoSmooth(bpy.types.Operator):
 
         self.report({'INFO'}, "Smoothed!")
         return {'FINISHED'}
-
-
-# ------------------------------------------------------------------------
-#    Properties
-# ------------------------------------------------------------------------
-
-smoothingAngle = bpy.props.FloatProperty(
-    name="Sharp Edge Angle",
-    description="Angle to use for smoothing",
-    default=35,
-    min=1,
-    max=180,
-    step=0.5,
-    update=SPEEDSEAMS_OT_SharpenSlider.execute
-)
-
-seamBool = bpy.props.BoolProperty(
-    name="Mark Sharp as Seams",
-    description="Marks sharp edges as seams as angle slider updates",
-    default=False
-)
-
-unwrapAlgorithm = bpy.props.EnumProperty(
-    name="",
-    description="Apply Data to attribute.",
-    items=[('OP1', "Conformal", ""),
-           ('OP2', "Angle-Based", ""),
-           ]
-)

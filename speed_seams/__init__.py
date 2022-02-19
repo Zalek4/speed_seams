@@ -1,8 +1,19 @@
 
+import bpy
 import importlib
 import sys
-import bpy
-from bpy.props import PointerProperty, BoolProperty
+from bpy.types import (Panel,
+                       Operator,
+                       PropertyGroup,
+                       )
+from bpy.props import (StringProperty,
+                       BoolProperty,
+                       IntProperty,
+                       FloatProperty,
+                       EnumProperty,
+                       PointerProperty,
+                       )
+from .operators import SPEEDSEAMS_OT_SharpenSlider
 
 bl_info = {
     "name": "Speed Seams",
@@ -15,6 +26,32 @@ bl_info = {
     "wiki_url": "",
 }
 
+
+class SpeedSeamsSettings(bpy.types.PropertyGroup):
+    smoothingAngle = bpy.props.FloatProperty(
+        name="Sharp Edge Angle",
+        description="Angle to use for smoothing",
+        default=35,
+        min=1,
+        max=180,
+        step=0.5,
+        update=SPEEDSEAMS_OT_SharpenSlider.execute
+    )
+
+    seamBool = bpy.props.BoolProperty(
+        name="Mark Sharp as Seams",
+        description="Marks sharp edges as seams as angle slider updates",
+        default=False
+    )
+
+    unwrapAlgorithm = bpy.props.EnumProperty(
+        name="",
+        description="Apply Data to attribute.",
+        items=[('OP1', "Conformal", ""),
+               ('OP2', "Angle-Based", ""),
+        ]
+    )
+
 #-----------------------------------------------------#
 #     register the modules
 #-----------------------------------------------------#
@@ -23,8 +60,11 @@ bl_info = {
 def register():
     from .register import register_addon
     register_addon()
+    bpy.utils.register_class(SpeedSeamsSettings)
+    bpy.types.Scene.ss_settings = PointerProperty(type=SpeedSeamsSettings)
 
 
 def unregister():
     from .register import unregister_addon
     unregister_addon()
+    del bpy.types.Scene.ss_settings
