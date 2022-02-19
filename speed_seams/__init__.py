@@ -1,81 +1,77 @@
 
+import bpy
 import importlib
 import sys
-import bpy
+from bpy.types import (Panel,
+                       Operator,
+                       PropertyGroup,
+                       )
+from bpy.props import (StringProperty,
+                       BoolProperty,
+                       IntProperty,
+                       FloatProperty,
+                       EnumProperty,
+                       PointerProperty,
+                       )
+from .operators import SPEEDSEAMS_OT_SharpenSlider
+
 bl_info = {
     "name": "Speed Seams",
-    "author": "Alex Hallenbeck",
-    "version": (0, 4, 3),
+    "author": "Alex Hallenbeck, Blake Darrow",
+    "version": (0, 4, 1),
     "blender": (3, 0, 0),
     "location": "View3D > Sidebar > Speed Seams",
     "description": "",
     "category": "Tools",
     "wiki_url": "",
+    "warning": "GPU OVERLAYS ARE EXPERIMENTAL AND SHOULD NOT BE USED"
 }
 
-#-----------------------------------------------------#
-#     add all new scripts to this string
-#-----------------------------------------------------#
 
-if __package__ != "speed_seams":
-    sys.modules["speed_seams"] = sys.modules[__package__]
+class SpeedSeamsSettings(bpy.types.PropertyGroup):
+    smoothingAngle : bpy.props.FloatProperty(
+        name="Sharp Edge Angle",
+        description="Angle to use for smoothing",
+        default=35,
+        min=1,
+        max=180,
+        step=0.5,
+        update=SPEEDSEAMS_OT_SharpenSlider.execute
+    )
 
-modulesNames = ['panels', 'op_edge_marker',
-                'op_apply_transforms', 'op_grease_pencil', ]
+    seamBool : bpy.props.BoolProperty(
+        name="Mark Seams",
+        description="Marks sharp edges as seams as angle slider updates",
+        default=False
+    )
 
-#-----------------------------------------------------#
-#     imports
-#-----------------------------------------------------#
-#-----------------------------------------------------#
-#     create a dictonary for module names
-#-----------------------------------------------------#
+    packmasterBool: bpy.props.BoolProperty(
+        name="UVPackmaster",
+        description="Uses UVPackmaster 2 or 3 if installed",
+        default=False
+    )
 
-modulesFullNames = {}
-for currentModuleName in modulesNames:
-    modulesFullNames[currentModuleName] = (
-        '{}.{}'.format(__name__, currentModuleName))
-
-#-----------------------------------------------------#
-#     import new modules to addon using full name from above
-#-----------------------------------------------------#
-for currentModuleFullName in modulesFullNames.values():
-    if currentModuleFullName in sys.modules:
-        importlib.reload(sys.modules[currentModuleFullName])
-    else:
-        globals()[currentModuleFullName] = importlib.import_module(
-            currentModuleFullName)
-        setattr(globals()[currentModuleFullName],
-                'modulesNames', modulesFullNames)
+    unwrapAlgorithm : bpy.props.EnumProperty(
+        name="",
+        description="Apply Data to attribute.",
+        items=[('UA1', "Conformal", ""),
+               ('UA2', "Angle-Based", ""),
+        ]
+    )
 
 #-----------------------------------------------------#
 #     register the modules
 #-----------------------------------------------------#
-classes = ()
 
 
 def register():
-    for cls in classes:
-        bpy.utils.register_class(cls)
-
-    for currentModuleName in modulesFullNames.values():
-        if currentModuleName in sys.modules:
-            if hasattr(sys.modules[currentModuleName], 'register'):
-                sys.modules[currentModuleName].register()
-
-#-----------------------------------------------------#
-#     unregister the modules
-#-----------------------------------------------------#
+    from .register import register_addon
+    register_addon()
+    bpy.utils.register_class(SpeedSeamsSettings)
+    bpy.types.Scene.ss_settings = PointerProperty(type=SpeedSeamsSettings)
 
 
 def unregister():
-    for cls in classes:
-        bpy.utils.unregister_class(cls)
-
-    for currentModuleName in modulesFullNames.values():
-        if currentModuleName in sys.modules:
-            if hasattr(sys.modules[currentModuleName], 'unregister'):
-                sys.modules[currentModuleName].unregister()
-
-
-if __name__ == "__main__":
-    register()
+    from .register import unregister_addon
+    unregister_addon()
+    del bpy.types.Scene.ss_settings
