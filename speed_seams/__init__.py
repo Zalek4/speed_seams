@@ -47,8 +47,9 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
     unwrapAlgorithm : bpy.props.EnumProperty(
         name="",
         description="Apply Data to attribute.",
-        items=[('OP1', "Conformal", ""),
-               ('OP2', "Angle-Based", ""),
+        items=[('UA1', "Conformal", ""),
+               ('UA2', "Angle-Based", ""),
+               ('UA3', "UVPackmaster", ""),
         ]
     )
 

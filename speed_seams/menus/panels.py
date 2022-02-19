@@ -4,7 +4,7 @@
 import bpy
 from bpy.types import Menu
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
-from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_grease_pencil
+from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay
 
 # ------------------------------------------------------------------------
 #    Classes
@@ -13,7 +13,7 @@ from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_
 # Builds a panel
 
 
-class SpeedSeamsPanel(bpy.types.Panel):
+class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
     bl_label = "Speed Seams"
     bl_idname = "SPEEDSEAMS_PT_mainPanel"
     bl_category = "Speed Seams"
@@ -100,9 +100,9 @@ class SpeedSeamsPanel(bpy.types.Panel):
         return context.mode in {'EDIT_MESH', 'OBJECT'}
 
 
-class SpeedSeamsPie(Menu):
+class SPEEDSEAMS_MT_PieMenu(Menu):
     bl_label = "Speed Seams"
-    bl_idname = "SPEEDSEAMS_PT_pieMenu"
+    bl_idname = "SPEEDSEAMS_MT_pieMenu"
     bl_category = "Speed Seams"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"

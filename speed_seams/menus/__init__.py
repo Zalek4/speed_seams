@@ -1,7 +1,7 @@
 import bpy
-from .panels import SpeedSeamsPanel, SpeedSeamsPie
+from .panels import SPEEDSEAMS_PT_MainPanel, SPEEDSEAMS_MT_PieMenu
 
-classes = (SpeedSeamsPanel, SpeedSeamsPie)
+classes = (SPEEDSEAMS_PT_MainPanel, SPEEDSEAMS_MT_PieMenu)
 
 
 def register_menus():
