@@ -18,12 +18,13 @@ from .operators import SPEEDSEAMS_OT_SharpenSlider
 bl_info = {
     "name": "Speed Seams",
     "author": "Alex Hallenbeck, Blake Darrow",
-    "version": (0, 4, 3),
+    "version": (0, 4, 1),
     "blender": (3, 0, 0),
     "location": "View3D > Sidebar > Speed Seams",
     "description": "",
     "category": "Tools",
     "wiki_url": "",
+    "warning": "GPU OVERLAYS ARE EXPERIMENTAL AND SHOULD NOT BE USED"
 }
 
 
