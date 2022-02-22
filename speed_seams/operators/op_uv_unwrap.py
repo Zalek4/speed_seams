@@ -74,7 +74,6 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
         Var_UnwrapMethod = ss.unwrapAlgorithm
         Var_Packmaster = ss.packmasterBool
 
-        print("hello I'm working")
         try:
             #tries this first just to throw the except if it doesn't exist
             bpy.ops.uvpackmaster3.pack(

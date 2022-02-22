@@ -218,7 +218,7 @@ class SPEEDSEAMS_OT_SharpenSlider(bpy.types.Operator):
 class SPEEDSEAMS_OT_AutoSmooth(bpy.types.Operator):
     bl_idname = "auto.smooth"
     bl_label = "Smooth All"
-    bl_description = "Enables Autosmooth at an angle of 180 degrees"
+    bl_description = "Clears sharp edges and enables Autosmooth at an angle of 180 degrees"
 
     def execute(self, context):
         if context.mode == 'OBJECT':

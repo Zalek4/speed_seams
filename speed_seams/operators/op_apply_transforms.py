@@ -12,7 +12,7 @@ import bpy
 class SPEEDSEAMS_OT_Apply_Transforms(bpy.types.Operator):
     bl_idname = "apply.transforms"
     bl_label = "All Transforms"
-    bl_description = "Applies selected transforms for the selected object"
+    bl_description = "Applies all transforms for the selected object"
 
     def execute(self, context):
 

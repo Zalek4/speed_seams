@@ -41,7 +41,7 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
 
     seamBool : bpy.props.BoolProperty(
         name="Mark Seams",
-        description="Marks sharp edges as seams as angle slider updates",
+        description="Marks sharp edges as seams as the 'Sharp Edge Angle' slider is updated",
         default=False
     )
 
@@ -53,10 +53,22 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
 
     unwrapAlgorithm : bpy.props.EnumProperty(
         name="",
-        description="Apply Data to attribute.",
+        description="Blender algorithm to use for unwraping UVs",
         items=[('UA1', "Conformal", ""),
                ('UA2', "Angle-Based", ""),
         ]
+    )
+
+    renameCollectionsBool: bpy.props.BoolProperty(
+        name="Rename Collections",
+        description="Gives the option to rename the high and low input collections.",
+        default=False
+    )
+
+    renameObjectsBool: bpy.props.BoolProperty(
+        name="Rename Objects",
+        description="Gives the option to rename each object pair as bake groups are made.",
+        default=False
     )
 
 #-----------------------------------------------------#
@@ -69,9 +81,13 @@ def register():
     register_addon()
     bpy.utils.register_class(SpeedSeamsSettings)
     bpy.types.Scene.ss_settings = PointerProperty(type=SpeedSeamsSettings)
+    bpy.types.Scene.ss_collection_high = PointerProperty(name="Highpoly", type=bpy.types.Collection)
+    bpy.types.Scene.ss_collection_low = PointerProperty(name="Lowpoly", type=bpy.types.Collection)
 
 
 def unregister():
     from .register import unregister_addon
     unregister_addon()
     del bpy.types.Scene.ss_settings
+    del bpy.types.Scene.ss_collection_high
+    del bpy.types.Scene.ss_collection_low
