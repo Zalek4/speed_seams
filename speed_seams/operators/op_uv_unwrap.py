@@ -13,6 +13,10 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
     bl_label = "Unwrap Object"
     bl_description = "Unwraps, averages, and packs UVs"
 
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
     def execute(self, context):
         scene = context.scene
         ss = scene.ss_settings

@@ -14,6 +14,10 @@ class SPEEDSEAMS_OT_Apply_Transforms(bpy.types.Operator):
     bl_label = "All Transforms"
     bl_description = "Applies all transforms for the selected object"
 
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
     def execute(self, context):
 
         if context.mode == 'OBJECT':
@@ -37,6 +41,10 @@ class SPEEDSEAMS_OT_ApplyLocation(bpy.types.Operator):
     bl_idname = "apply.location"
     bl_label = "Location"
     bl_description = "Applies the location of the selected object"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
 
     def execute(self, context):
 
@@ -62,6 +70,10 @@ class SPEEDSEAMS_OT_ApplyRotation(bpy.types.Operator):
     bl_label = "Rotation"
     bl_description = "Applies the rotation of the selected object"
 
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
     def execute(self, context):
 
         if context.mode == 'OBJECT':
@@ -85,6 +97,10 @@ class SPEEDSEAMS_OT_ApplyScale(bpy.types.Operator):
     bl_idname = "apply.scale"
     bl_label = "Scale"
     bl_description = "Applies the scale of the selected object"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
 
     def execute(self, context):
 
