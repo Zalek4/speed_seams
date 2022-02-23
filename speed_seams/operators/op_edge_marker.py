@@ -219,11 +219,72 @@ class SPEEDSEAMS_OT_SharpenSlider(bpy.types.Operator):
                 bpy.ops.mesh.mark_seam(clear=False)
 
             return None
+            
 
         else:
             #print("No object is active")
             return None
 
+
+class SPEEDSEAMS_OT_SharpenSliderButton(bpy.types.Operator):
+    bl_idname = "sharpen.slider_button"
+    bl_label = ""
+    bl_description = "Sets 'Autosmooth' and 'Sharp Edges' at slider angle"
+    bl_context = 'mesh_edit'
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
+    # Executes automation after button press
+    def execute(self, context):
+
+        scene = context.scene
+        ss = scene.ss_settings
+
+        # Variables
+        Var_AngleValue = ss.smoothingAngle
+        Var_SeamBool = ss.seamBool
+        #Var_RealtimeUnwrap = bpy.context.object.realtimeUnwrap
+
+        # Convert angle slider input to radians
+        Var_NewAngle = Var_AngleValue * (3.1459/180)
+
+        if context.object is not None:
+            # Enable autosmooth at the defined angle
+            bpy.context.object.data.use_auto_smooth = True
+            bpy.context.object.data.auto_smooth_angle = 3.1459
+
+            # Enter 'Edit Mode', deselect everything, and change selection setting to 'Edge'
+
+            if context.mode == 'OBJECT':
+                bpy.ops.object.shade_smooth()
+                bpy.context.scene.tool_settings.mesh_select_mode = (
+                    False, True, False)
+                bpy.ops.object.editmode_toggle()
+
+            bpy.ops.mesh.select_all(action='DESELECT')
+
+            # Clear old sharp edges, and mark sharp edges based on the smoothing angle
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.mark_sharp(clear=True)
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.ops.mesh.edges_select_sharp(sharpness=Var_NewAngle)
+            bpy.ops.mesh.mark_sharp()
+
+            # Mark UV seams at sharp edges if the checkbox is filled
+            if Var_SeamBool == True:
+                bpy.ops.mesh.select_all(action='SELECT')
+                bpy.ops.mesh.mark_seam(clear=True)
+                bpy.ops.mesh.select_all(action='DESELECT')
+                bpy.ops.mesh.edges_select_sharp(sharpness=Var_NewAngle)
+                bpy.ops.mesh.mark_seam(clear=False)
+
+            return {'FINISHED'}
+
+        else:
+            #print("No object is active")
+            return None
 
 class SPEEDSEAMS_OT_AutoSmooth(bpy.types.Operator):
     bl_idname = "auto.smooth"

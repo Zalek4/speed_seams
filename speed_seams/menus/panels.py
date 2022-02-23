@@ -66,9 +66,17 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row.scale_y = scale
 
         if context.object is not None:
+            
+            row.scale_x = 330
+            row.operator(op_edge_marker.SPEEDSEAMS_OT_SharpenSliderButton.bl_idname,
+                         icon='SNAP_VOLUME')
             row.prop(ss, "smoothingAngle", slider=True)
+            
         else:
             row.active = False
+            row.scale_x = 330
+            row.operator(op_edge_marker.SPEEDSEAMS_OT_SharpenSliderButton.bl_idname,
+                         icon='SNAP_VOLUME')
             row.prop(ss, "smoothingAngle", slider=True)
         
 
@@ -84,7 +92,7 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row.operator(op_edge_marker.SPEEDSEAMS_OT_AutoSmooth.bl_idname,
                         icon='PROP_CON')
         row.operator(op_edge_marker.SPEEDSEAMS_OT_MarkSharpAsSeams.bl_idname,
-                        icon='PMARKER_ACT')
+                     icon='MATCUBE')
                         
 
         row = col.row(align=True)
