@@ -82,9 +82,11 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
         try:
             #tries this first just to throw the except if it doesn't exist
             print("Trying packmaster 3...")
+            print("")
             bpy.ops.uvpackmaster3.pack(
                 mode_id="pack.single_tile", pack_to_others=False)
             print("^^^ ignore this warning ^^^")
+            print("")
 
             #Does the real thing if it doesn't fail
             bpy.ops.mesh.select_all(action='SELECT')
