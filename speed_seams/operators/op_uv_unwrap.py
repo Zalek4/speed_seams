@@ -43,6 +43,7 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
             bpy.context.scene.tool_settings.uv_select_mode = ('ISLAND')
 
             if ss.packmasterBool == True:
+                print("Sending to Packmaster function...")
                 self.packmaster(context)
 
             else:
@@ -80,12 +81,16 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
 
         try:
             #tries this first just to throw the except if it doesn't exist
+            print("Trying packmaster 3...")
             bpy.ops.uvpackmaster3.pack(
                 mode_id="pack.single_tile", pack_to_others=False)
+            print("^^^ ignore this warning ^^^")
 
             #Does the real thing if it doesn't fail
             bpy.ops.mesh.select_all(action='SELECT')
             bpy.ops.uv.select_all(action='SELECT')
+
+            print("Packmaster 3 exists! Packing...")
 
             if Var_UnwrapMethod == 'UA1':
                 bpy.ops.uv.unwrap(method='CONFORMAL', margin=0.01)
@@ -104,11 +109,15 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
 
             try:
                 #tries this first just to throw the except if it doesn't exist
+                print("Packmaster 3 doesn't exist, trying Packmaster 2...")
                 bpy.ops.uvpackmaster2.uv_pack()
+                print("^^^ ignore this warning ^^^")
 
                 #Does the real thing if it doesn't fail
                 bpy.ops.mesh.select_all(action='SELECT')
                 bpy.ops.uv.select_all(action='SELECT')
+
+                print("Packmaster 2 exists! Packing...")
 
                 if Var_UnwrapMethod == 'UA1':
                     bpy.ops.uv.unwrap(method='CONFORMAL', margin=0.01)
