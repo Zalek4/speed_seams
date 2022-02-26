@@ -228,7 +228,7 @@ class SPEEDSEAMS_OT_SharpenSlider(bpy.types.Operator):
 
 class SPEEDSEAMS_OT_SharpenSliderButton(bpy.types.Operator):
     bl_idname = "sharpen.slider_button"
-    bl_label = ""
+    bl_label = "Mark Sharp"
     bl_description = "Sets 'Autosmooth' and 'Sharp Edges' at slider angle"
     bl_context = 'mesh_edit'
 
@@ -285,6 +285,29 @@ class SPEEDSEAMS_OT_SharpenSliderButton(bpy.types.Operator):
         else:
             #print("No object is active")
             return None
+
+
+class SPEEDSEAMS_OT_SharpenSliderReset(bpy.types.Operator):
+    bl_idname = "slider.reset"
+    bl_label = ""
+    bl_description = "Resets 'Sharp Edge Angle' slider to 35 degrees"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
+    def execute(self, context):
+        scene = context.scene
+        ss = scene.ss_settings
+
+        if ss.smoothingAngle == 35:
+            self.report({'INFO'}, "Already default value")
+        else:
+            ss.smoothingAngle = 35
+            self.report({'INFO'}, "Reset angle")
+
+        return {'FINISHED'}
+
 
 class SPEEDSEAMS_OT_AutoSmooth(bpy.types.Operator):
     bl_idname = "auto.smooth"

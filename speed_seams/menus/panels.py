@@ -67,14 +67,18 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
 
         if context.object is not None:
             
-            row.scale_x = 330
-            row.operator(op_edge_marker.SPEEDSEAMS_OT_SharpenSliderButton.bl_idname,
-                         icon='SNAP_VOLUME')
+            #row.scale_x = 330
             row.prop(ss, "smoothingAngle", slider=True)
+            row.operator(
+                op_edge_marker.SPEEDSEAMS_OT_SharpenSliderReset.bl_idname, icon='LOOP_BACK')
+
+            row = col.row(align=True)
+            row.scale_y = scale
+            row.operator(op_edge_marker.SPEEDSEAMS_OT_SharpenSliderButton.bl_idname)
             
         else:
             row.active = False
-            row.scale_x = 330
+            #row.scale_x = 330
             row.operator(op_edge_marker.SPEEDSEAMS_OT_SharpenSliderButton.bl_idname,
                          icon='SNAP_VOLUME')
             row.prop(ss, "smoothingAngle", slider=True)

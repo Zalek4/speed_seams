@@ -96,7 +96,7 @@ def register():
     kmi_transforms_pie = km.keymap_items.new("wm.call_menu_pie", "D", "PRESS", shift=True, ctrl=True)
     kmi_transforms_pie.properties.name = SPEEDSEAMS_MT_TransformsToolsPie.bl_idname
 
-    kmi_quick_sharp_pie = km.keymap_items.new("wm.call_menu_pie", "E", "PRESS", shift=True, ctrl=True)
+    kmi_quick_sharp_pie = km.keymap_items.new("wm.call_menu_pie", "X", "PRESS", shift=True, ctrl=True)
     kmi_quick_sharp_pie.properties.name = SPEEDSEAMS_MT_QuickSharpPie.bl_idname
 
     addon_keymaps.append((km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie))
