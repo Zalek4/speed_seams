@@ -321,3 +321,117 @@ class SPEEDSEAMS_OT_AutoSmooth(bpy.types.Operator):
 
         self.report({'INFO'}, "Smoothed!")
         return {'FINISHED'}
+
+
+class SPEEDSEAMS_OT_QuickSharp15(bpy.types.Operator):
+    bl_idname = "quick.sharp15"
+    bl_label = "15"
+    bl_description = "Marks edges sharp at 15 degrees"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
+    def execute(self, context):
+        scene = context.scene
+        ss = scene.ss_settings
+
+        ss.smoothingAngle = 15
+
+        self.report({'INFO'}, "Smoothed!")
+        return {'FINISHED'}
+
+
+class SPEEDSEAMS_OT_QuickSharp30(bpy.types.Operator):
+    bl_idname = "quick.sharp30"
+    bl_label = "30"
+    bl_description = "Marks edges sharp at 30 degrees"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
+    def execute(self, context):
+        scene = context.scene
+        ss = scene.ss_settings
+
+        ss.smoothingAngle = 30
+
+        self.report({'INFO'}, "Smoothed!")
+        return {'FINISHED'}
+
+
+class SPEEDSEAMS_OT_QuickSharp45(bpy.types.Operator):
+    bl_idname = "quick.sharp45"
+    bl_label = "45"
+    bl_description = "Marks edges sharp at 45 degrees"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
+    def execute(self, context):
+        scene = context.scene
+        ss = scene.ss_settings
+
+        ss.smoothingAngle = 45
+
+        self.report({'INFO'}, "Smoothed!")
+        return {'FINISHED'}
+
+
+class SPEEDSEAMS_OT_QuickSharp60(bpy.types.Operator):
+    bl_idname = "quick.sharp60"
+    bl_label = "60"
+    bl_description = "Marks edges sharp at 60 degrees"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
+    def execute(self, context):
+        scene = context.scene
+        ss = scene.ss_settings
+
+        ss.smoothingAngle = 60
+
+        self.report({'INFO'}, "Smoothed!")
+        return {'FINISHED'}
+
+
+class SPEEDSEAMS_OT_QuickSharp75(bpy.types.Operator):
+    bl_idname = "quick.sharp75"
+    bl_label = "75"
+    bl_description = "Marks edges sharp at 75 degrees"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
+    def execute(self, context):
+        scene = context.scene
+        ss = scene.ss_settings
+
+        ss.smoothingAngle = 75
+
+        self.report({'INFO'}, "Smoothed!")
+        return {'FINISHED'}
+
+
+class SPEEDSEAMS_OT_QuickSharp90(bpy.types.Operator):
+    bl_idname = "quick.sharp90"
+    bl_label = "90"
+    bl_description = "Marks edges sharp at 90 degrees"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
+    def execute(self, context):
+        scene = context.scene
+        ss = scene.ss_settings
+
+        ss.smoothingAngle = 90
+
+        self.report({'INFO'}, "Smoothed!")
+        return {'FINISHED'}

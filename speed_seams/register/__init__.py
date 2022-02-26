@@ -1,4 +1,12 @@
+import bpy
+from .preferences import SpeedSeamsPreferences
+
+
 def register_addon():
+    # Preferences
+    from . import preferences
+    bpy.utils.register_class(SpeedSeamsPreferences)
+
 
     # Operators
     from ..operators import register_operators
@@ -10,6 +18,8 @@ def register_addon():
 
 
 def unregister_addon():
+    # Preferences
+    bpy.utils.unregister_class(SpeedSeamsPreferences)
 
     # Operators
     from ..operators import unregister_operators

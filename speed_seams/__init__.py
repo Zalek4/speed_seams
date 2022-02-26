@@ -13,12 +13,13 @@ from bpy.props import (StringProperty,
                        EnumProperty,
                        PointerProperty,
                        )
+from .menus.panels import SPEEDSEAMS_MT_EdgeToolsPie, SPEEDSEAMS_MT_QuickSharpPie, SPEEDSEAMS_MT_TransformsToolsPie
 from .operators import SPEEDSEAMS_OT_SharpenSlider
 
 bl_info = {
     "name": "Speed Seams",
     "author": "Alex Hallenbeck, Blake Darrow",
-    "version": (0, 4, 2),
+    "version": (0, 5, 3),
     "blender": (3, 0, 0),
     "location": "View3D > Sidebar > Speed Seams",
     "description": "",
@@ -75,6 +76,7 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
 #     register the modules
 #-----------------------------------------------------#
 
+addon_keymaps = []
 
 def register():
     from .register import register_addon
@@ -84,6 +86,20 @@ def register():
     bpy.types.Scene.ss_collection_high = PointerProperty(name="Highpoly", type=bpy.types.Collection)
     bpy.types.Scene.ss_collection_low = PointerProperty(name="Lowpoly", type=bpy.types.Collection)
 
+    #Register Keymaps
+    kc = bpy.context.window_manager.keyconfigs.addon
+    km = kc.keymaps.new(name='3D View', space_type='VIEW_3D')
+
+    kmi_edge_tools_pie = km.keymap_items.new("wm.call_menu_pie", "D", "PRESS", shift=True)
+    kmi_edge_tools_pie.properties.name = SPEEDSEAMS_MT_EdgeToolsPie.bl_idname
+
+    kmi_transforms_pie = km.keymap_items.new("wm.call_menu_pie", "D", "PRESS", shift=True, ctrl=True)
+    kmi_transforms_pie.properties.name = SPEEDSEAMS_MT_TransformsToolsPie.bl_idname
+
+    kmi_quick_sharp_pie = km.keymap_items.new("wm.call_menu_pie", "E", "PRESS", shift=True, ctrl=True)
+    kmi_quick_sharp_pie.properties.name = SPEEDSEAMS_MT_QuickSharpPie.bl_idname
+
+    addon_keymaps.append((km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie))
 
 def unregister():
     from .register import unregister_addon
@@ -91,3 +107,13 @@ def unregister():
     del bpy.types.Scene.ss_settings
     del bpy.types.Scene.ss_collection_high
     del bpy.types.Scene.ss_collection_low
+
+    #Unregister Keymaps
+    wm = bpy.context.window_manager
+    kc = wm.keyconfigs.addon
+    if kc:
+        for km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie in addon_keymaps:
+            km.keymap_items.remove(kmi_edge_tools_pie)
+            km.keymap_items.remove(kmi_quick_sharp_pie)
+            km.keymap_items.remove(kmi_transforms_pie)
+    addon_keymaps.clear()
