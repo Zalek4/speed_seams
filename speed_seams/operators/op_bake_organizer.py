@@ -9,17 +9,17 @@ import bpy
 # ------------------------------------------------------------------------
 
 
-class SPEEDSEAMS_OT_CreateHighLowCollections(bpy.types.Operator):
+class SPEEDSEAMS_OT_OrganizeHighLowCollections(bpy.types.Operator):
     bl_idname = "create.high_low_collections"
-    bl_label = "Create High/Low Collections"
+    bl_label = "Organize High/Low Collections"
     bl_description = "Sets up bake collections for high/low object sets"
 
     def execute(self, context):
-        bg_name = "Bake Group"
-        bg_low_name = "Low"
-        bg_high_name = "High"
-        scene_collection_name = "Scene Collection"
         scene = context.scene
+        ss = scene.ss_settings
+        bg_name = ss.bakePrepAssetName + "_" + "bake_group"
+        bg_low_name = ss.bakePrepAssetName + "_" + ss.bakePrepSuffixLow
+        bg_high_name = ss.bakePrepAssetName + "_" + ss.bakePrepSuffixHigh
 
         # Get all collections of the scene and their parents in a dict
         coll_scene = bpy.context.scene.collection
@@ -108,6 +108,9 @@ class SPEEDSEAMS_OT_CreateHighLowCollections(bpy.types.Operator):
                 bg_low_collection = bpy.data.collections.new(bg_low_name)
                 bg_collection.children.link(bg_low_collection)
 
+        scene.ss_collection_high = bg_high_collection
+        scene.ss_collection_low = bg_low_collection
+
         return {'FINISHED'}
 
 
@@ -125,9 +128,9 @@ def parent_lookup(coll):
     print(parent_lookup)
     return parent_lookup
 
-class SPEEDSEAMS_OT_Organize_Objects(bpy.types.Operator):
-    bl_idname = "organize.objects"
-    bl_label = "Organize"
+class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
+    bl_idname = "pair.high_low_objects"
+    bl_label = "Pair High/Low Meshes"
     bl_description = "Not super sure what this does yet"
 
     def execute(self, context):

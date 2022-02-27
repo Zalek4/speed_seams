@@ -81,13 +81,13 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
     bakePrepSuffixHigh: bpy.props.StringProperty(
         name="",
         description="The highpoly suffix to use for objects and high/low collections",
-        default="High"
+        default="high"
     )
 
     bakePrepSuffixLow: bpy.props.StringProperty(
         name="",
         description="The lowpoly suffix to use for objects and high/low collections",
-        default="Low"
+        default="low"
     )
 
 #-----------------------------------------------------#
@@ -101,8 +101,8 @@ def register():
     register_addon()
     bpy.utils.register_class(SpeedSeamsSettings)
     bpy.types.Scene.ss_settings = PointerProperty(type=SpeedSeamsSettings)
-    bpy.types.Scene.ss_collection_high = PointerProperty(name="Highpoly", type=bpy.types.Collection)
-    bpy.types.Scene.ss_collection_low = PointerProperty(name="Lowpoly", type=bpy.types.Collection)
+    bpy.types.Scene.ss_collection_high = PointerProperty(name="", type=bpy.types.Collection)
+    bpy.types.Scene.ss_collection_low = PointerProperty(name="", type=bpy.types.Collection)
 
     #Register Keymaps
     kc = bpy.context.window_manager.keyconfigs.addon

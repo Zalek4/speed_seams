@@ -27,7 +27,6 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         scene = context.scene
         ss = scene.ss_settings
 
-        #if len(objs) is not 0:
         #UV Tools --------------------------------------------------------------
         box = layout.box()
         scale = 1.2
@@ -170,7 +169,7 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row = col.row(align=True)
         row.scale_y = scale
         row.operator(
-            op_bake_organizer.SPEEDSEAMS_OT_CreateHighLowCollections.bl_idname, icon='NEWFOLDER')
+            op_bake_organizer.SPEEDSEAMS_OT_OrganizeHighLowCollections.bl_idname, icon='NEWFOLDER')
 
         row = col.row(align=True)
         row.scale_y = scale
@@ -186,20 +185,22 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row.scale_y = scale
         row.label(text="Lowpoly Suffix:")
         row.prop(ss, "bakePrepSuffixLow")
+
+        row = col.row(align=True)
+        row.scale_y = scale
+        row.label(text="Highpoly Collection:")
+        row.prop(scene, "ss_collection_high")
+
+        row = col.row(align=True)
+        row.scale_y = scale
+        row.label(text="Lowpoly Collection:")
+        row.prop(scene, "ss_collection_low")
         col.separator()
 
         row = col.row(align=True)
         row.scale_y = scale
         row.operator(
-            op_bake_organizer.SPEEDSEAMS_OT_Organize_Objects.bl_idname, icon='NEWFOLDER')
-
-        row = col.row(align=True)
-        row.scale_y = scale
-        row.prop(scene, "ss_collection_high")
-
-        row = col.row(align=True)
-        row.scale_y = scale
-        row.prop(scene, "ss_collection_low")
+            op_bake_organizer.SPEEDSEAMS_OT_PairHighLowObjects.bl_idname, icon='UV_SYNC_SELECT')
 
         col.separator()
         row = col.row(align=True)
