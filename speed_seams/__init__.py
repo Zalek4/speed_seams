@@ -72,6 +72,24 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
         default=False
     )
 
+    bakePrepAssetName: bpy.props.StringProperty(
+        name="",
+        description="The asset name used to name bake prep collections",
+        default=""
+    )
+
+    bakePrepSuffixHigh: bpy.props.StringProperty(
+        name="",
+        description="The highpoly suffix to use for objects and high/low collections",
+        default="High"
+    )
+
+    bakePrepSuffixLow: bpy.props.StringProperty(
+        name="",
+        description="The lowpoly suffix to use for objects and high/low collections",
+        default="Low"
+    )
+
 #-----------------------------------------------------#
 #     register the modules
 #-----------------------------------------------------#
