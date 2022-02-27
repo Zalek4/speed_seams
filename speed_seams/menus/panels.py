@@ -35,7 +35,12 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row = col.row(align=True)
         row.scale_y = scale
 
-        row.label(text="Smoothing and UV Tools")
+        if context.object is not None:
+            row.label(text="Smoothing and UV Tools")
+
+        else:
+            row.active = False
+            row.label(text="Smoothing and UV Tools")
 
         row = col.row(align=True)
         row.scale_y = scale
@@ -66,8 +71,6 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row.scale_y = scale
 
         if context.object is not None:
-            
-            #row.scale_x = 330
             row.prop(ss, "smoothingAngle", slider=True)
             row.operator(
                 op_edge_marker.SPEEDSEAMS_OT_SharpenSliderReset.bl_idname, icon='LOOP_BACK')
@@ -78,10 +81,14 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
             
         else:
             row.active = False
-            #row.scale_x = 330
-            row.operator(op_edge_marker.SPEEDSEAMS_OT_SharpenSliderButton.bl_idname,
-                         icon='SNAP_VOLUME')
             row.prop(ss, "smoothingAngle", slider=True)
+            row.operator(
+                op_edge_marker.SPEEDSEAMS_OT_SharpenSliderReset.bl_idname, icon='LOOP_BACK')
+
+            row = col.row(align=True)
+            row.scale_y = scale
+            row.operator(
+                op_edge_marker.SPEEDSEAMS_OT_SharpenSliderButton.bl_idname)
         
 
         #Edge Tools --------------------------------------------------------------
@@ -90,7 +97,13 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row = col.row(align=True)
         row.scale_y = scale
 
-        row.label(text="Edge Tools")
+        if context.object is not None:
+            row.label(text="Edge Tools")
+
+        else:
+            row.active = False
+            row.label(text="Edge Tools")
+        
         row = col.row(align=True)
         row.scale_y = scale
         row.operator(op_edge_marker.SPEEDSEAMS_OT_AutoSmooth.bl_idname,
@@ -120,7 +133,13 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row = col.row(align=True)
         row.scale_y = scale
 
-        row.label(text="Transforms Tools")
+        if context.object is not None:
+            row.label(text="Transforms Tools")
+
+        else:
+            row.active = False
+            row.label(text="Transforms Tools")
+        
 
         row = col.row(align=True)
         row.scale_y = scale
