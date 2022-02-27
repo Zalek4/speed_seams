@@ -170,6 +170,12 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row = col.row(align=True)
         row.scale_y = scale
         row.operator(
+            op_bake_organizer.SPEEDSEAMS_OT_CreateHighLowCollections.bl_idname, icon='NEWFOLDER')
+        col.separator()
+
+        row = col.row(align=True)
+        row.scale_y = scale
+        row.operator(
             op_bake_organizer.SPEEDSEAMS_OT_Organize_Objects.bl_idname, icon='NEWFOLDER')
 
         row = col.row(align=True)
