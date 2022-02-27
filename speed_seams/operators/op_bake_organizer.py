@@ -21,28 +21,50 @@ class SPEEDSEAMS_OT_CreateHighLowCollections(bpy.types.Operator):
         scene_collection_name = "Scene Collection"
         scene = context.scene
 
-        scene_collection = bpy.context.scene.collection.children.get(scene_collection_name)
-        bg_collection = bpy.context.scene.collection.children.get(bg_name)
+        # Get all collections of the scene and their parents in a dict
+        coll_scene = bpy.context.scene.collection
+        coll_parents = parent_lookup(coll_scene)
+
+        #Check to see if the bake group exists
+        bg_collection = bpy.data.collections.get(bg_name)
         if bg_collection:
             print("'Bake Group' collection already exists")
 
-            bg_high_collection = bpy.context.scene.collection.children.get(bg_high_name)
+            #Check to see if the High collection exists. Make it if it doesn't
+            bg_high_collection = bpy.data.collections.get(bg_high_name)
             if bg_high_collection:
-                print("'High' collection already exists")
-                scene.collection.children.unlink(bg_high_collection)
-                bg_collection.children.link(bg_high_collection)
+                print("'High' collection already exists. Moving it to proper collection...")
+
+                bg_high_collection_parent = coll_parents.get(bg_high_collection.name)
+
+                if bg_high_collection_parent:
+                    #unlink
+                    bg_high_collection_parent.children.unlink(bg_high_collection)
+
+                    #relink
+                    bg_collection.children.link(bg_high_collection)
+
             else:
-                print("'High' collection doesn't exist!!!")
+                print("'High' collection doesn't exist. Creating it...")
                 bg_high_collection = bpy.data.collections.new(bg_high_name)
                 bg_collection.children.link(bg_high_collection)
 
-            bg_low_collection = bpy.context.scene.collection.children.get(bg_low_name)
+            #Check to see if the Low collection exists. Make it if it doesn't
+            bg_low_collection = bpy.data.collections.get(bg_low_name)
             if bg_low_collection:
-                print("'Low' collection already exists")
-                scene.collection.children.unlink(bg_low_collection)
-                bg_collection.children.link(bg_low_collection)
+                print("'Low' collection already exists. Moving it to proper collection...")
+
+                bg_low_collection_parent = coll_parents.get(bg_low_collection.name)
+
+                if bg_low_collection_parent:
+                    #unlink
+                    bg_low_collection_parent.children.unlink(bg_low_collection)
+
+                    #relink
+                    bg_collection.children.link(bg_low_collection)
+
             else:
-                print("'Low' collection doesn't exist!!!")
+                print("'Low' collection doesn't exist. Creating it...")
                 bg_low_collection = bpy.data.collections.new(bg_low_name)
                 bg_collection.children.link(bg_low_collection)
 
@@ -50,49 +72,58 @@ class SPEEDSEAMS_OT_CreateHighLowCollections(bpy.types.Operator):
             print("'Bake Group' collection doesn't exist. Creating it...")
             bg_collection = bpy.data.collections.new(bg_name)
             bpy.context.scene.collection.children.link(bg_collection)
-            bg_collection = bpy.context.scene.collection.children.get(bg_name)
+            bg_collection = bpy.data.collections.get(bg_name)
 
-
-            bg_high_collection = bpy.context.scene.collection.children.get(bg_high_name)
+            bg_high_collection = bpy.data.collections.get(bg_high_name)
             if bg_high_collection:
-                print("'High' collection already exists")
-                scene.collection.children.unlink(bg_high_collection)
-                bg_collection.children.link(bg_high_collection)
+                print("'High' collection already exists. Moving it to proper collection...")
+
+                bg_high_collection_parent = coll_parents.get(bg_high_collection.name)
+
+                if bg_high_collection_parent:
+                    #unlink
+                    bg_high_collection_parent.children.unlink(bg_high_collection)
+
+                    #relink
+                    bg_collection.children.link(bg_high_collection)
             else:
                 print("'High' collection doesn't exist. Creating it...")
                 bg_high_collection = bpy.data.collections.new(bg_high_name)
                 bg_collection.children.link(bg_high_collection)
 
-
-            bg_low_collection = bpy.context.scene.collection.children.get(bg_low_name)
+            bg_low_collection = bpy.data.collections.get(bg_low_name)
             if bg_low_collection:
-                print("'Low' collection already exists")
-                scene.collection.children.unlink(bg_low_collection)
-                bg_collection.children.link(bg_low_collection)
+                print("'Low' collection already exists. Moving it to proper collection...")
+
+                bg_low_collection_parent = coll_parents.get(bg_low_collection.name)
+
+                if bg_low_collection_parent:
+                    #unlink
+                    bg_low_collection_parent.children.unlink(bg_low_collection)
+
+                    #relink
+                    bg_collection.children.link(bg_low_collection)
             else:
                 print("'Low' collection doesn't exist. Creating it...")
                 bg_low_collection = bpy.data.collections.new(bg_low_name)
                 bg_collection.children.link(bg_low_collection)
-        
-
-        """for obj in scene:
-            if obj.type == "EMPTY":
-                for coll in obj.users_collection:
-                    coll.objects.unlink(obj)
-                bpy.data.collections[empty_collection_name].objects.link(obj)
-                obj.hide_set(True)
-
-        vlayer = bpy.context.scene.view_layers["View Layer"]
-        vlayer.layer_collection.children[empty_collection_name].hide_viewport = True
-        bpy.data.collections[empty_collection_name].color_tag = 'COLOR_01'
-        bpy.ops.object.select_all(action='DESELECT')
-
-        for x in old_obj:
-            x.select_set(state=True)"""
-
 
         return {'FINISHED'}
 
+
+def traverse_tree(t):
+    yield t
+    for child in t.children:
+        yield from traverse_tree(child)
+
+
+def parent_lookup(coll):
+    parent_lookup = {}
+    for coll in traverse_tree(coll):
+        for c in coll.children.keys():
+            parent_lookup.setdefault(c, coll)
+    print(parent_lookup)
+    return parent_lookup
 
 class SPEEDSEAMS_OT_Organize_Objects(bpy.types.Operator):
     bl_idname = "organize.objects"
