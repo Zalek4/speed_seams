@@ -168,11 +168,6 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
 
         row = col.row(align=True)
         row.scale_y = scale
-        row.operator(
-            op_bake_organizer.SPEEDSEAMS_OT_OrganizeHighLowCollections.bl_idname, icon='NEWFOLDER')
-
-        row = col.row(align=True)
-        row.scale_y = scale
         row.label(text="Asset Name:")
         row.prop(ss, "bakePrepAssetName")
         
@@ -195,12 +190,20 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row.scale_y = scale
         row.label(text="Lowpoly Collection:")
         row.prop(scene, "ss_collection_low")
-        col.separator()
+        col.separator()        
 
         row = col.row(align=True)
         row.scale_y = scale
-        row.operator(
-            op_bake_organizer.SPEEDSEAMS_OT_PairHighLowObjects.bl_idname, icon='UV_SYNC_SELECT')
+        row.operator(op_bake_organizer.SPEEDSEAMS_OT_OrganizeHighLowCollections.bl_idname, icon='NEWFOLDER')
+
+        row = col.row(align=True)
+        row.scale_y = scale
+        row.operator(op_bake_organizer.SPEEDSEAMS_OT_SortHighObjects.bl_idname, icon='PLUS')
+        row.operator(op_bake_organizer.SPEEDSEAMS_OT_SortLowObjects.bl_idname, icon='PLUS')
+
+        row = col.row(align=True)
+        row.scale_y = scale
+        row.operator(op_bake_organizer.SPEEDSEAMS_OT_PairHighLowObjects.bl_idname, icon='UV_SYNC_SELECT')
 
         col.separator()
         row = col.row(align=True)
@@ -283,3 +286,18 @@ class SPEEDSEAMS_MT_QuickSharpPie(Menu):
             op_edge_marker.SPEEDSEAMS_OT_QuickSharp30.bl_idname, icon='CON_SHRINKWRAP')
         pie.operator(
             op_edge_marker.SPEEDSEAMS_OT_QuickSharp60.bl_idname, icon='CON_SHRINKWRAP')
+
+
+class SPEEDSEAMS_MT_HighLowPie(Menu):
+    bl_label = "Sort High/Low"
+    bl_idname = "SPEEDSEAMS_MT_HighLowPie"
+    bl_category = "Speed Seams"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+
+        pie.operator(op_bake_organizer.SPEEDSEAMS_OT_SortHighObjects.bl_idname, icon='PLUS')
+        pie.operator(op_bake_organizer.SPEEDSEAMS_OT_SortLowObjects.bl_idname, icon='PLUS')

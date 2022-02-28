@@ -13,7 +13,7 @@ from bpy.props import (StringProperty,
                        EnumProperty,
                        PointerProperty,
                        )
-from .menus.panels import SPEEDSEAMS_MT_EdgeToolsPie, SPEEDSEAMS_MT_QuickSharpPie, SPEEDSEAMS_MT_TransformsToolsPie
+from .menus.panels import SPEEDSEAMS_MT_EdgeToolsPie, SPEEDSEAMS_MT_HighLowPie, SPEEDSEAMS_MT_QuickSharpPie, SPEEDSEAMS_MT_TransformsToolsPie
 from .operators import SPEEDSEAMS_OT_SharpenSlider
 
 bl_info = {
@@ -117,7 +117,10 @@ def register():
     kmi_quick_sharp_pie = km.keymap_items.new("wm.call_menu_pie", "X", "PRESS", shift=True, ctrl=True)
     kmi_quick_sharp_pie.properties.name = SPEEDSEAMS_MT_QuickSharpPie.bl_idname
 
-    addon_keymaps.append((km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie))
+    kmi_high_low_pie = km.keymap_items.new("wm.call_menu_pie", "C", "PRESS", shift=True)
+    kmi_high_low_pie.properties.name = SPEEDSEAMS_MT_HighLowPie.bl_idname
+
+    addon_keymaps.append((km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie, kmi_high_low_pie))
 
 def unregister():
     from .register import unregister_addon
@@ -130,8 +133,9 @@ def unregister():
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
     if kc:
-        for km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie in addon_keymaps:
+        for km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie, kmi_high_low_pie in addon_keymaps:
             km.keymap_items.remove(kmi_edge_tools_pie)
             km.keymap_items.remove(kmi_quick_sharp_pie)
             km.keymap_items.remove(kmi_transforms_pie)
+            km.keymap_items.remove(kmi_high_low_pie)
     addon_keymaps.clear()
