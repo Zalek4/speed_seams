@@ -82,7 +82,7 @@ class SPEEDSEAMS_OT_ClearSeams(bpy.types.Operator):
 
 class SPEEDSEAMS_OT_MarkSharpAsSeams(bpy.types.Operator):
     bl_idname = "mark.sharp_as_seams"
-    bl_label = "Mark Sharp as Seams"
+    bl_label = "Sharp to Seams"
     bl_description = "Marks current sharp edges as UV seams"
 
     @classmethod

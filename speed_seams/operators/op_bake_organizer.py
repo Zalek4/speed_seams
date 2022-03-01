@@ -210,6 +210,7 @@ class SPEEDSEAMS_OT_SortHighObjects(bpy.types.Operator):
 
                 # Loop through all objects
                 for ob in objs:
+                    print("Moved: ")
                     print(objs)
                     # Loop through all collections the obj is linked to
                     for coll in ob.users_collection:
@@ -218,6 +219,9 @@ class SPEEDSEAMS_OT_SortHighObjects(bpy.types.Operator):
 
                     # Link each object to the target collection
                     bg_high_collection.objects.link(ob)
+
+        else:
+            self.report({'ERROR'}, "Highpoly collection does not exist")
 
         return {'FINISHED'}
 
@@ -249,6 +253,7 @@ class SPEEDSEAMS_OT_SortLowObjects(bpy.types.Operator):
 
                 # Loop through all objects
                 for ob in objs:
+                    print("Moved: ")
                     print(objs)
                     # Loop through all collections the obj is linked to
                     for coll in ob.users_collection:
@@ -257,5 +262,8 @@ class SPEEDSEAMS_OT_SortLowObjects(bpy.types.Operator):
 
                     # Link each object to the target collection
                     bg_low_collection.objects.link(ob)
+
+        else:
+            self.report({'ERROR'}, "Lowpoly collection does not exist")
 
         return {'FINISHED'}

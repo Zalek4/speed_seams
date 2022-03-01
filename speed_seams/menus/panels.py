@@ -4,7 +4,7 @@
 import bpy
 from bpy.types import Menu
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
-from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_bake_organizer
+from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_bake_organizer, op_uv_unwrap
 
 # ------------------------------------------------------------------------
 #    Classes
@@ -35,11 +35,25 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row.scale_y = scale
 
         if context.object is not None:
-            row.label(text="Smoothing and UV Tools")
+            row.label(text="UV Tools")
 
         else:
             row.active = False
-            row.label(text="Smoothing and UV Tools")
+            row.label(text="UV Tools")
+
+        row = col.row(align=True)
+        row.scale_y = scale
+        if context.object is not None:
+            row.prop(ss, "uvTextureRes")
+        else:
+            row.active = False
+            row.prop(ss, "uvTextureRes")
+        if context.object is not None:
+            row.prop(ss, "uvTextureType")
+        else:
+            row.active = False
+            row.prop(ss, "uvTextureType")
+        row.operator(op_uv_unwrap.SPEEDSEAMS_OT_AddUVTexture.bl_idname, icon='TEXTURE_DATA')
 
         row = col.row(align=True)
         row.scale_y = scale
@@ -51,43 +65,16 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
             row.prop(ss, "unwrapAlgorithm")
 
         row.operator(op_edge_marker.SPEEDSEAMS_OT_UnwrapSelected.bl_idname,
-                    icon='MOD_UVPROJECT')
+                     icon='MOD_EXPLODE')
         col.separator()
 
         row = col.row(align=True)
 
         if context.object is not None:
-            row.prop(ss, "seamBool")
             row.prop(ss, "packmasterBool")
         else:
             row.active = False
-            row.prop(ss, "seamBool")
             row.prop(ss, "packmasterBool")
-
-        col.separator()
-
-        row = col.row(align=True)
-        row.scale_y = scale
-
-        if context.object is not None:
-            row.prop(ss, "smoothingAngle", slider=True)
-            row.operator(
-                op_edge_marker.SPEEDSEAMS_OT_SharpenSliderReset.bl_idname, icon='LOOP_BACK')
-
-            row = col.row(align=True)
-            row.scale_y = scale
-            row.operator(op_edge_marker.SPEEDSEAMS_OT_SharpenSliderButton.bl_idname)
-            
-        else:
-            row.active = False
-            row.prop(ss, "smoothingAngle", slider=True)
-            row.operator(
-                op_edge_marker.SPEEDSEAMS_OT_SharpenSliderReset.bl_idname, icon='LOOP_BACK')
-
-            row = col.row(align=True)
-            row.scale_y = scale
-            row.operator(
-                op_edge_marker.SPEEDSEAMS_OT_SharpenSliderButton.bl_idname)
         
 
         #Edge Tools --------------------------------------------------------------
@@ -98,10 +85,36 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
 
         if context.object is not None:
             row.label(text="Edge Tools")
-
         else:
             row.active = False
             row.label(text="Edge Tools")
+
+        row = col.row(align=True)
+        row.scale_y = scale
+        row.operator(
+            op_edge_marker.SPEEDSEAMS_OT_SharpenSliderButton.bl_idname, icon='FILE_3D')
+
+        row = col.row(align=True)
+        row.scale_y = scale
+        if context.object is not None:
+            row.prop(ss, "smoothingAngle", slider=True)
+            row.operator(
+                op_edge_marker.SPEEDSEAMS_OT_SharpenSliderReset.bl_idname, icon='LOOP_BACK')
+
+        else:
+            row.active = False
+            row.prop(ss, "smoothingAngle", slider=True)
+            row.operator(
+                op_edge_marker.SPEEDSEAMS_OT_SharpenSliderReset.bl_idname, icon='LOOP_BACK')
+        col.separator()
+
+        row = col.row(align=True)
+        if context.object is not None:
+            row.prop(ss, "seamBool")
+        else:
+            row.active = False
+            row.prop(ss, "seamBool")
+        col.separator()
         
         row = col.row(align=True)
         row.scale_y = scale

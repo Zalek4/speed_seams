@@ -7,7 +7,6 @@ def register_addon():
     from . import preferences
     bpy.utils.register_class(SpeedSeamsPreferences)
 
-
     # Operators
     from ..operators import register_operators
     register_operators()

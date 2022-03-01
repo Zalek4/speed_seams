@@ -2,6 +2,7 @@
 #    Imports
 # ------------------------------------------------------------------------
 
+from cgitb import text
 import bpy
 
 # ------------------------------------------------------------------------
@@ -136,3 +137,70 @@ class SPEEDSEAMS_OT_UnwrapSelected(bpy.types.Operator):
             except:
                 self.report(
                     {'ERROR'}, "No version of UVPackmaster is installed")
+
+
+class SPEEDSEAMS_OT_AddUVTexture(bpy.types.Operator):
+    bl_idname = "add.uv_texture"
+    bl_label = "Add Texture"
+    bl_description = "Adds the selected objects to the Highpoly collection of current bake group"
+
+    def execute(self, context):
+        scene = context.scene
+        ss = scene.ss_settings
+        texSize = ss.uvTextureRes
+        texType = ss.uvTextureType
+
+        #Assigns the texSize variable an image dimension
+        if texSize == 'UV0':
+            texSize = 32
+        elif texSize == 'UV1':
+            texSize = 64
+        elif texSize == 'UV2':
+            texSize = 128
+        elif texSize == 'UV3':
+            texSize = 256
+        elif texSize == 'UV4':
+            texSize = 512
+        elif texSize == 'UV5':
+            texSize = 1024
+        elif texSize == 'UV6':
+            texSize = 2048
+        elif texSize == 'UV7':
+            texSize = 4096
+        print("Texture size is: " + str(texSize))
+
+        #Assigns the texType variable one of the 2 grid types
+        if texType == 'UVT0':
+            texType = 'UV_GRID'
+            print("Texture type is: " + texType)
+        else:
+            texType = 'COLOR_GRID'
+            print("Texture type is: " + texType)
+
+        #Automates the image naming convention
+        imageName = "SS_" + texType + "_" + str(texSize)
+        print("Texture name will be: " + imageName)
+
+        #Check to see if the image exists already. If not, create it.
+        ssTexture = bpy.data.images.get(imageName)
+        if ssTexture:
+            print(imageName + " already exists. Assigning it...")
+        else:
+            bpy.ops.image.new(
+                name=imageName,
+                width=texSize,
+                height=texSize,
+                color=(0.0, 0.0, 0.0, 1.0),
+                alpha=True,
+                generated_type=texType,
+                float=False,
+                use_stereo_3d=False,
+                tiled=False
+            )
+            print("Created texture")
+
+        #This will remove images
+        #bpy.data.images.remove(image)
+
+        self.report({'INFO'}, "Created texture")
+        return {'FINISHED'}

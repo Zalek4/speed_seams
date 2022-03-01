@@ -52,6 +52,28 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
         default=False
     )
 
+    uvTextureType: bpy.props.EnumProperty(
+        name="",
+        description="Texture resolution of UV checker texture",
+        items=[('UVT0', "UV Grid", ""),
+               ('UVT1', "Color Grid", ""),
+               ]
+    )
+
+    uvTextureRes: bpy.props.EnumProperty(
+        name="",
+        description="Texture resolution of UV checker texture",
+        items=[('UV0', "32", ""), 
+                ('UV1', "64", ""),
+               ('UV2', "128", ""),
+               ('UV3', "256", ""),
+               ('UV4', "512", ""),
+               ('UV5', "1024", ""),
+               ('UV6', "2048", ""),
+               ('UV7', "4096", ""),
+               ]
+    )
+
     unwrapAlgorithm : bpy.props.EnumProperty(
         name="",
         description="Blender algorithm to use for unwraping UVs",
