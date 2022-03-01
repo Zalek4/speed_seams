@@ -12,7 +12,6 @@ from mathutils import Vector
 #    Classes
 # ------------------------------------------------------------------------
 
-
 class SPEEDSEAMS_OT_OrganizeHighLowCollections(bpy.types.Operator):
     bl_idname = "create.high_low_collections"
     bl_label = "Organize High/Low Collections"
@@ -117,7 +116,6 @@ class SPEEDSEAMS_OT_OrganizeHighLowCollections(bpy.types.Operator):
 
         return {'FINISHED'}
 
-
 def traverse_tree(t):
     yield t
     for child in t.children:
@@ -137,9 +135,63 @@ class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
     bl_description = "Pairs high/low objects based on the amount they overlap"
 
     def execute(self, context):
+        scene = context.scene
+        obj = context.active_object
+        normalList = []
+        transformList = []
+
+        for v in obj.data.vertices:
+            #get the normal of the vertex and append it to the normal dictionary
+            n = v.normal
+            n = n * -1
+            normalList.append(n)
+
+            #get the location of the vertex and append it to the location dictionary
+            coords = obj.matrix_world @ v.co
+            transformList.append(coords)
+        
+        """print("Normals:")
+        for p in normalList:
+            print(p)
+        print("----------------------------------------------------------")
+        print("Locations:")
+        for c in transformList:
+            print(c)
+        print("----------------------------------------------------------")"""
+
+        #Do traces, and report the name of the object each hits
+        index = 0
+        #print("Starting Index: " + str(index))
+        for rt in obj.data.vertices:
+            if transformList:
+                if normalList:
+                    print("Raycasting...")
+
+                    hit, loc, norm, idx, ob, M = scene.ray_cast(context.evaluated_depsgraph_get(), transformList[index], normalList[index], distance=0.1)
+                    
+                    print("Raycast location: " + str(transformList[index]))
+                    print("Normal direction: " + str(normalList[index]))
+
+                    if hit:
+                        #Here, we could add a value to 1 and compare the end sum to the number of verts on the low
+                        #If the number of hits is within 1 percent of the number of LP verts, then match the objects
+                        print("Hit: " + str(ob.name))
+            
+                    index = index + 1
+                    #print("New Index: " + str(index))
+
+                    if not hit:
+                        print("Missed")
+
+            else:
+                break
+
+
+        return{'FINISHED'}
+
 
         #These would need to be the locations of the high and low meshes
-        a = Vector((-5, 0, 0))
+        """a = Vector((-5, 0, 0))
         b = Vector((5, 0, 0))
 
         scene = context.scene
@@ -156,8 +208,9 @@ class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
                 continue
             break
 
-        return {'FINISHED'}
+        return {'FINISHED'}"""
 
+#-------------------------------------------------------------------------------------------------------
         #for obj in bpy.data.scenes["Scene"].ss_collection_high.all_objects:
             #print("high obj: ", obj.name)
 
