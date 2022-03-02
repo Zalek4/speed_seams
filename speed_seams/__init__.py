@@ -15,6 +15,7 @@ from bpy.props import (StringProperty,
                        )
 from .menus.panels import SPEEDSEAMS_MT_EdgeToolsPie, SPEEDSEAMS_MT_HighLowPie, SPEEDSEAMS_MT_QuickSharpPie, SPEEDSEAMS_MT_TransformsToolsPie
 from .operators import SPEEDSEAMS_OT_SharpenSlider
+from .operators import SPEEDSEAMS_OT_OrganizeHighLowCollections
 
 bl_info = {
     "name": "Speed Seams",
@@ -98,6 +99,7 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
         name="",
         description="The asset name used to name bake prep collections",
         default=""
+        #update=SPEEDSEAMS_OT_OrganizeHighLowCollections.execute
     )
 
     bakePrepSuffixHigh: bpy.props.StringProperty(
@@ -110,6 +112,24 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
         name="",
         description="The lowpoly suffix to use for objects and high/low collections",
         default="low"
+    )
+
+    matchAccuracy: bpy.props.FloatProperty(
+        name="Match Accuracy",
+        description="Percent of the lowpoly mesh shape that must match the highpoly mesh shape in order to be paired together",
+        default=50,
+        min=50,
+        max=100,
+        step=1.00
+    )
+
+    matchDistance: bpy.props.FloatProperty(
+        name="Search Distance",
+        description="Percent of the lowpoly mesh shape that must match the highpoly mesh shape in order to be paired together",
+        default=0.3,
+        min=0.3,
+        max=2.0,
+        step=1.00
     )
 
 #-----------------------------------------------------#

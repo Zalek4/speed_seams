@@ -213,10 +213,16 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row.scale_y = scale
         row.operator(op_bake_organizer.SPEEDSEAMS_OT_SortHighObjects.bl_idname, icon='PLUS')
         row.operator(op_bake_organizer.SPEEDSEAMS_OT_SortLowObjects.bl_idname, icon='PLUS')
+        col.separator()
 
         row = col.row(align=True)
         row.scale_y = scale
         row.operator(op_bake_organizer.SPEEDSEAMS_OT_PairHighLowObjects.bl_idname, icon='UV_SYNC_SELECT')
+
+        row = col.row(align=True)
+        row.scale_y = scale
+        row.prop(ss, "matchAccuracy", slider=True)
+        row.prop(ss, "matchDistance", slider=True)
 
         col.separator()
         row = col.row(align=True)

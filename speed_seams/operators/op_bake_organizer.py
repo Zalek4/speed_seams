@@ -3,6 +3,7 @@
 # ------------------------------------------------------------------------
 
 from bpy import context
+import time
 import bmesh
 import bpy
 from mathutils.bvhtree import BVHTree
@@ -136,105 +137,105 @@ class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        obj = context.active_object
-        normalList = []
-        transformList = []
+        ss = scene.ss_settings
+        matchAccuracy = ss.matchAccuracy * .01
+        bg_low_name = ss.bakePrepAssetName + "_" + ss.bakePrepSuffixLow
+        bg_high_name = ss.bakePrepAssetName + "_" + ss.bakePrepSuffixHigh
 
-        for v in obj.data.vertices:
-            #get the normal of the vertex and append it to the normal dictionary
-            n = v.normal
-            n = n * -1
-            normalList.append(n)
+        #Get collection names and print them
+        bg_high_collection = bpy.data.collections.get(bg_high_name)
+        bg_low_collection = bpy.data.collections.get(bg_low_name)
 
-            #get the location of the vertex and append it to the location dictionary
-            coords = obj.matrix_world @ v.co
-            transformList.append(coords)
-        
-        """print("Normals:")
-        for p in normalList:
-            print(p)
-        print("----------------------------------------------------------")
-        print("Locations:")
-        for c in transformList:
-            print(c)
-        print("----------------------------------------------------------")"""
+        print("Using " + str(bg_low_collection.name) + " as Lowpoly collection")
+        print("Using " + str(bg_high_collection.name) + " as Highpoly collection")
 
-        #Do traces, and report the name of the object each hits
-        index = 0
-        #print("Starting Index: " + str(index))
-        for rt in obj.data.vertices:
-            if transformList:
-                if normalList:
-                    print("Raycasting...")
+        #Hide all high and low objects
+        for lowObject in bg_low_collection.all_objects:
+            lowObject.hide_set(True)
 
-                    hit, loc, norm, idx, ob, M = scene.ray_cast(context.evaluated_depsgraph_get(), transformList[index], normalList[index], distance=0.1)
+        for highObject in bg_high_collection.all_objects:
+            highObject.hide_set(True)
+
+        print("Match Percentage: " + str(ss.matchAccuracy) + "%")
+
+        #Look at each mesh in the low collection
+        for lowObject in bg_low_collection.all_objects:
+
+            #reset the variables
+            normalList = []
+            transformList = []
+            vertexCount = 0
+            
+            #Get vertex data of current low mesh
+            for v in lowObject.data.vertices:
+                #get the vertex count
+                vertexCount = vertexCount + 1
+                #get the normal of the vertex and append it to the normal dictionary
+                n = v.normal
+                n = n * -1
+                normalList.append(n)
+
+                #get the location of the vertex and append it to the location dictionary
+                coords = lowObject.matrix_world @ v.co
+                transformList.append(coords)
+            
+            #print(lowObject.name)
+            #print(lowObject.name + "'s Vertex Count: " + str(vertexCount))
+            #print("Normal List: " + str(normalList))
+            #print("Transform List: " + str(transformList))
+
+            #cycle through each high object and raycast onto each
+            for highObject in bg_high_collection.all_objects:
+
+                #Do traces, and report the name of the object each hits
+                index = 0
+                hitCount = 0
+                highObject.hide_set(False)
+
+                print("Looking for the match for " + str(lowObject.name) + "...")
+
+                for i in range(len(normalList)):
+
+                    hit, loc, norm, idx, ob, M = scene.ray_cast(context.evaluated_depsgraph_get(), transformList[index], normalList[index], distance=0.3)
                     
-                    print("Raycast location: " + str(transformList[index]))
-                    print("Normal direction: " + str(normalList[index]))
+                    #print("Raycast location: " + str(transformList[index]))
+                    #print("Normal direction: " + str(normalList[index]))
 
                     if hit:
-                        #Here, we could add a value to 1 and compare the end sum to the number of verts on the low
-                        #If the number of hits is within 1 percent of the number of LP verts, then match the objects
-                        print("Hit: " + str(ob.name))
-            
-                    index = index + 1
-                    #print("New Index: " + str(index))
+                        #add 1 to the hitCount and print what we hit
+                        hitCount = hitCount + 1
+                        print("Hit " + str(ob.name) + " - Total: " + str(hitCount))
 
+                    #add 1 to the index so we can move to the next object
+                    index = index + 1
+
+                    #print a miss
                     if not hit:
                         print("Missed")
 
-            else:
-                break
+                    #compare the hit count with the vert count every check. If more than half the hits match a highpoly object, exit the loop.
+                    if hitCount/vertexCount >= matchAccuracy:
+                        matchAccuracy = matchAccuracy * 100
+                        print("More than " + str(matchAccuracy) + "% of the lowpoly verts match " + str(highObject.name))
+                        break
+                
+                #compare the hit count with the vert count every highpoly object. If more than half the hits match a highpoly object, exit the loop.
+                if hitCount/vertexCount >= matchAccuracy:
+                    print("Skipping all other HP checks")
+                    break
+                
+                #hide the highpoly object
+                highObject.hide_set(True)
+                #time.sleep(0.1)
 
+        #Unhide everything
+        for lowObject in bg_low_collection.all_objects:
+            lowObject.hide_set(False)
+
+        for highObject in bg_high_collection.all_objects:
+            highObject.hide_set(False)
 
         return{'FINISHED'}
-
-
-        #These would need to be the locations of the high and low meshes
-        """a = Vector((-5, 0, 0))
-        b = Vector((5, 0, 0))
-
-        scene = context.scene
-
-        #WTAF
-        while True:
-            hit, loc, norm, idx, ob, M = scene.ray_cast(context.evaluated_depsgraph_get(), 
-            a, (b - a), distance=(b - a).length,)
-            if hit:
-                #Here, we could add a value to 1 and compare the end sum to the number of verts on the low
-                #If the number of hits is within 1 percent of the number of LP verts, then match the objects
-                print(f"Hit, removing {ob.name}")
-                #bpy.data.objects.remove(ob)
-                continue
-            break
-
-        return {'FINISHED'}"""
-
-#-------------------------------------------------------------------------------------------------------
-        #for obj in bpy.data.scenes["Scene"].ss_collection_high.all_objects:
-            #print("high obj: ", obj.name)
-
-        #for obj in bpy.data.scenes["Scene"].ss_collection_low.all_objects:
-            #print("low obj: ", obj.name)
-
-        #globalcoordinate = Vector((x, y, z))
-        #localcoordinateforobject = (globalcoordinate - object.location) * object.matrix_world.inverted()
-
-        #C = bpy.context
-
-        # Build BVH once
-        #bvh = BVHTree.FromObject(C.object, C.evaluated_depsgraph_get())
-
-        #for i in range(999999):
-            # Slower, this possibly builds BVH everytime
-            # C.object.ray_cast((0, 0, 0), (0, 0, -1))
-
-            # Faster
-        #bvh.ray_cast((0, 0, 0), (0, 0, -1))
-        #print (bvh.ray_cast((0, 0, 0), (0, 0, -1)))
-
-        #return {'FINISHED'}
-
 
 class SPEEDSEAMS_OT_SortHighObjects(bpy.types.Operator):
     bl_idname = "sort.high_objects"
@@ -277,7 +278,6 @@ class SPEEDSEAMS_OT_SortHighObjects(bpy.types.Operator):
             self.report({'ERROR'}, "Highpoly collection does not exist")
 
         return {'FINISHED'}
-
 
 class SPEEDSEAMS_OT_SortLowObjects(bpy.types.Operator):
     bl_idname = "sort.low_objects"
