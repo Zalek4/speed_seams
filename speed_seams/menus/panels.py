@@ -221,8 +221,8 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
 
         row = col.row(align=True)
         row.scale_y = scale
-        row.prop(ss, "matchAccuracy", slider=True)
-        row.prop(ss, "matchDistance", slider=True)
+        #row.prop(ss, "matchAccuracy", slider=True)
+        row.prop(ss, "searchDistance", slider=True)
 
         col.separator()
         row = col.row(align=True)

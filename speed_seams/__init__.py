@@ -114,16 +114,16 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
         default="low"
     )
 
-    matchAccuracy: bpy.props.FloatProperty(
+    matchAccuracy: bpy.props.IntProperty(
         name="Match Accuracy",
         description="Percent of the lowpoly mesh shape that must match the highpoly mesh shape in order to be paired together",
-        default=50,
-        min=50,
+        default=95,
+        min=95,
         max=100,
-        step=1.00
+        step=1
     )
 
-    matchDistance: bpy.props.FloatProperty(
+    searchDistance: bpy.props.FloatProperty(
         name="Search Distance",
         description="Percent of the lowpoly mesh shape that must match the highpoly mesh shape in order to be paired together",
         default=0.3,
