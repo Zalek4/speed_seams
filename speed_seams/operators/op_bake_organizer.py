@@ -331,11 +331,11 @@ class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
             #Remove duplicate matches from match lists
             lowMatched = list(dict.fromkeys(lowMatched))
             highMatched = list(dict.fromkeys(highMatched))
-            #print(str(lowMatched))
-            #print(str(highMatched))
 
+            #Set up for loop variables
             meshMatchIndex = 0
             collSizeIndex = 0
+
             #Move highpoly objects that weren't matched to an 'UNMATCHED' collection
             for highObject in bg_high_collection.all_objects:
                 collectionSize = len(bg_high_collection.all_objects)
@@ -358,14 +358,13 @@ class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
                             coll.objects.unlink(highObject)
                         bg_high_unmatched_collection.objects.link(highObject)
 
-            print(len(highMatched))
-            print(len(lowMatched))
             if len(highMatched) < collectionSize:
                 highpolysMatch = False
             else:
                 highpolysMatch = True
             collSizeIndex += 1
 
+            #reset for loop variables so they can be used to compare the lowpoly objects
             meshMatchIndex = 0
             collSizeIndex = 0
 
@@ -397,8 +396,6 @@ class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
                 lowpolysMatch = True
                 collSizeIndex += 1
 
-            print(highpolysMatch)
-            print(lowpolysMatch)
             #print the results of the matching tests
             if highpolysMatch and lowpolysMatch == True:
                 self.report({'INFO'}, "ALL MESHES MATCHED")
