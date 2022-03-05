@@ -334,8 +334,13 @@ class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
             #print(str(lowMatched))
             #print(str(highMatched))
 
+            meshMatchIndex = 0
+            collSizeIndex = 0
             #Move highpoly objects that weren't matched to an 'UNMATCHED' collection
             for highObject in bg_high_collection.all_objects:
+                collectionSize = len(bg_high_collection.all_objects)
+                if collSizeIndex >= collectionSize:
+                    break
                 if highObject in highMatched:
                     meshMatchIndex = meshMatchIndex + 1
                     pass
@@ -352,15 +357,23 @@ class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
                         for coll in highObject.users_collection:
                             coll.objects.unlink(highObject)
                         bg_high_unmatched_collection.objects.link(highObject)
-                if meshMatchIndex < len(highMatched):
-                    highpolysMatch = False
-                else:
-                    highpolysMatch = True
 
-            meshMatchIndex = -1
+            print(len(highMatched))
+            print(len(lowMatched))
+            if len(highMatched) < collectionSize:
+                highpolysMatch = False
+            else:
+                highpolysMatch = True
+            collSizeIndex += 1
+
+            meshMatchIndex = 0
+            collSizeIndex = 0
 
             #Move highpoly objects that weren't matched to an 'UNMATCHED' collection
             for lowObject in bg_low_collection.all_objects:
+                collectionSize = len(bg_low_collection.all_objects)
+                if collSizeIndex >= collectionSize:
+                    break
                 if lowObject in lowMatched:
                     meshMatchIndex = meshMatchIndex + 1
                     pass
@@ -377,10 +390,12 @@ class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
                         for coll in lowObject.users_collection:
                             coll.objects.unlink(lowObject)
                         bg_low_unmatched_collection.objects.link(lowObject)
-                if meshMatchIndex < len(lowMatched):
-                    lowpolysMatch = False
-                else:
-                    lowpolysMatch = True
+
+            if len(lowMatched) < collectionSize:
+                lowpolysMatch = False
+            else:
+                lowpolysMatch = True
+                collSizeIndex += 1
 
             print(highpolysMatch)
             print(lowpolysMatch)
