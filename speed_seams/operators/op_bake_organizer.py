@@ -129,197 +129,276 @@ class SPEEDSEAMS_OT_PairHighLowObjects(bpy.types.Operator):
         matchAccuracy = 85 * .01
         bg_name = ss.bakePrepAssetName + "_" + "bake_group"
         bg_low_name = ss.bakePrepAssetName + "_" + ss.bakePrepSuffixLow
+        bg_low_unmatched_name = ss.bakePrepAssetName + "_" + ss.bakePrepSuffixLow + "_" + "UNMATCHED"
         bg_high_name = ss.bakePrepAssetName + "_" + ss.bakePrepSuffixHigh
+        bg_high_unmatched_name = ss.bakePrepAssetName + "_" + ss.bakePrepSuffixHigh + "_" + "UNMATCHED"
 
         #Get collection names and print them
         bg_collection = bpy.data.collections.get(bg_name)
         bg_high_collection = bpy.data.collections.get(bg_high_name)
         bg_low_collection = bpy.data.collections.get(bg_low_name)
 
-        #print settings to console
-        print("-----------------------------------------------------------------")
-        print("Using " + str(bg_low_collection.name) + " as Lowpoly collection")
-        print("Using " + str(bg_high_collection.name) + " as Highpoly collection")
-        print("Match Percentage: " + str(matchAccuracy) + "%")
-        print("Search Distance : " + str(ss.searchDistance))
-        print("-----------------------------------------------------------------")
+        if bg_collection and bg_high_collection and bg_low_collection:
+            #print settings to console
+            print("-----------------------------------------------------------------")
+            print("Using " + str(bg_low_collection.name) + " as Lowpoly collection")
+            print("Using " + str(bg_high_collection.name) + " as Highpoly collection")
+            print("Match Percentage: " + str(matchAccuracy) + "%")
+            print("Search Distance : " + str(ss.searchDistance))
+            print("-----------------------------------------------------------------")
 
-        #Hide all high and low objects
-        for lowObject in bg_low_collection.all_objects:
-            lowObject.hide_set(True)
+            #Hide all high and low objects
+            for lowObject in bg_low_collection.all_objects:
+                lowObject.hide_set(True)
 
-        for highObject in bg_high_collection.all_objects:
-            highObject.hide_set(True)
+            for highObject in bg_high_collection.all_objects:
+                highObject.hide_set(True)
 
-        objectNumber = 0
+            objectNumber = 1
+            matchFound = False
+            meshMatchIndex = -1
+            highpolysMatch = False
+            lowpolysMatch = False
+            lowMatched = []
+            highMatched = []
+            lowUnmatched = []
+            highObjectGroup = []
+            for highObject in bg_high_collection.all_objects:
+                highObjectGroup.append(highObject)
 
-        #Look at each mesh in the low collection
-        for lowObject in bg_low_collection.all_objects:
-            print("_________________________________________________________________")
-            print("Looking for a match for: " + str(lowObject.name))
-            bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+            #Look at each mesh in the low collection ------------------------------------------------------------------------------
+            for lowObject in bg_low_collection.all_objects:
+                print("_________________________________________________________________")
+                print("Looking for a match for: " + str(lowObject.name))
+                #bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
-            #reset the variables
-            objectNumber = objectNumber + 1
-            normalList = []
-            transformList = []
-            vertexCount = 0
+                #reset the variables
+                if matchFound == True:
+                    objectNumber = objectNumber + 1
+                else:
+                    pass
+                highMatches = []
 
-            #Set up proper object naming
-            if objectNumber <= 9:
-                mesh_low_name = ss.bakePrepAssetName + "_" + "00" + str(objectNumber) + "_" + ss.bakePrepSuffixLow
-                mesh_high_name = ss.bakePrepAssetName + "_" + "00" + str(objectNumber) + "_" + ss.bakePrepSuffixHigh
-            elif objectNumber > 9:
-                mesh_low_name = ss.bakePrepAssetName + "_" + "0" + str(objectNumber) + "_" + ss.bakePrepSuffixLow
-                mesh_high_name = ss.bakePrepAssetName + "_" + "0" + str(objectNumber) + "_" + ss.bakePrepSuffixHigh
-            elif objectNumber > 99:
-                mesh_low_name = ss.bakePrepAssetName + "_" + str(objectNumber) + "_" + ss.bakePrepSuffixLow
-                mesh_high_name = ss.bakePrepAssetName + "_" + str(objectNumber) + "_" + ss.bakePrepSuffixHigh
-            #bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-            
-            #Get vertex data of current low mesh
-            for v in lowObject.data.vertices:
-                #get the vertex count
-                vertexCount = vertexCount + 1
-                #get the normal of the vertex and append it to the normal dictionary
-                n = v.normal
-                n = n * -1
-                normalList.append(n)
-                nOffset = n * 0.0001
+                #Set up proper object naming
+                if objectNumber <= 9:
+                    mesh_low_name = ss.bakePrepAssetName + "_" + "00" + str(objectNumber) + "_" + ss.bakePrepSuffixLow
+                    mesh_high_name = ss.bakePrepAssetName + "_" + "00" + str(objectNumber) + "_" + ss.bakePrepSuffixHigh
+                elif objectNumber > 9:
+                    mesh_low_name = ss.bakePrepAssetName + "_" + "0" + str(objectNumber) + "_" + ss.bakePrepSuffixLow
+                    mesh_high_name = ss.bakePrepAssetName + "_" + "0" + str(objectNumber) + "_" + ss.bakePrepSuffixHigh
+                elif objectNumber > 99:
+                    mesh_low_name = ss.bakePrepAssetName + "_" + str(objectNumber) + "_" + ss.bakePrepSuffixLow
+                    mesh_high_name = ss.bakePrepAssetName + "_" + str(objectNumber) + "_" + ss.bakePrepSuffixHigh
+                #bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 
-                #get the location of the vertex and append it to the location dictionary
-                coords = lowObject.matrix_world @ v.co
-                offsetCoords = coords + nOffset
-                transformList.append(offsetCoords)
+                #Compare lowpoly bounding boxes to highpoly bounding boxes -----------------------------------------------------------
+                #Get bounding box of lowpoly
+                lowObjectX = bpy.data.objects[lowObject.name].dimensions.x
+                lowObjectY = bpy.data.objects[lowObject.name].dimensions.y
+                lowObjectZ = bpy.data.objects[lowObject.name].dimensions.z
+                #print("Lowpoly dimensions: (" + str(lowObjectX) + ", " + str(lowObjectY) + ", " + str(lowObjectZ) + ")")
 
-            #Check if the data was actually generated
-            if vertexCount:
-                if normalList:
-                    if transformList:
+                for highObject in highObjectGroup:
+                    #Get bounding box of highpoly
+                    highObjectX = bpy.data.objects[highObject.name].dimensions.x
+                    highObjectY = bpy.data.objects[highObject.name].dimensions.y
+                    highObjectZ = bpy.data.objects[highObject.name].dimensions.z
+                    #print("Highpoly dimensions: (" + str(highObjectX) + ", " + str(highObjectY) + ", " + str(highObjectZ) + ")")
+
+                    #Get the difference between each dimension
+                    xDiff = highObjectX/lowObjectX
+                    yDiff = highObjectY/lowObjectY
+                    zDiff = highObjectZ/lowObjectZ
+                    
+                    #invert the difference if it's negative
+                    if xDiff < 0:
+                        xDiff = xDiff * -1
+                    if yDiff < 0:
+                        yDiff = yDiff * -1
+                    if zDiff < 0:
+                        zDiff = zDiff * -1
+                    #print("Bounds difference: (" + str(xDiff) + ", " + str(yDiff) + ", " + str(zDiff) + ")")
+
+                    #Add highpoly to match list if the bounds are similar
+                    if 0.93 <= xDiff <= 1.01 and 0.93 <= yDiff <= 1.01 and 0.93 <= zDiff <= 1.01:
+                        print("<<Match: " + str(highObject.name) + ". Adding to list...>>")
+                        highMatches.append(highObject)
+
+                #Rename if only one match was found
+                if len(highMatches) == 1:
+                    print("<<Matched " + str(lowObject.name) + " and " + str(highObject.name) + ">>")
+                    highMatched.append(highMatches[0])
+                    highMatches[0].name = mesh_high_name
+                    lowObject.name = mesh_low_name
+                    highObjectGroup.remove(highMatches[0])
+                    print("<<Converted to " + str(lowObject.name) + " and " + str(highMatches[0].name) + ">>")
+                    lowMatched.append(lowObject)
+                    matchFound = True
+
+                #If no match was found, add the highpoly and lowpoly to their unmatched lists
+                elif len(highMatches) == 0:
+                    print("No match found. Adding lowpoly to 'unmatched' collection")
+                    lowUnmatched.append(lowObject)
+                    matchFound = False
+                
+                #If more than one match was found, compare them with raytraces
+                else:
+                    print("Multiple matches found. Checking shape and position similarity...")
+                    normalList = []
+                    transformList = []
+                    vertexCount = 0
+                    searchingBool = 0
+
+                    #Get vertex data of current low mesh
+                    for v in lowObject.data.vertices:
+                        #get the vertex count
+                        vertexCount = vertexCount + 1
+                        #get the normal of the vertex and append it to the normal list
+                        n = v.normal
+                        n = n * -1
+                        normalList.append(n)
+                        nOffset = n * 0.0001
+
+                        #get the location of the vertex and append it to the location list
+                        coords = lowObject.matrix_world @ v.co
+                        offsetCoords = coords + nOffset
+                        transformList.append(offsetCoords)
+
+                    if vertexCount and normalList and transformList:
                         print("Generated data for " + str(lowObject.name))
 
-            hitCount = 0
-            searchingBool = 0
-            badLowMatches = []
-            badHighMatches = []
-            
-            #cycle through each high object and raycast onto each
-            for highObject in bg_high_collection.all_objects:
-                
-                #only print 'searching' once
-                if searchingBool < 1:
-                    print("Searching...")
-                searchingBool = 1
+                    highMatchesIndex = 0
+                    #cycle through each high object and raycast onto each
+                    for highObject in highMatches:
+                        #only print 'searching' once
+                        if searchingBool < 1:
+                            print("Searching...")
+                        searchingBool = 1
 
-                #Do traces, and report the name of the object each hits
-                hitCount = 0
-                accuracy = 0
-                indexCap = len(normalList)
-                indexCap = indexCap - 1
+                        #Do traces, and report the name of the object each hits
+                        hitCount = 0
+                        accuracy = 0
+                        indexCap = len(normalList)
+                        indexCap = indexCap - 1
 
-                #Sets the limit for the number of random points we can select. Prevents small meshes from throwing an error.
-                indexRange = round(vertexCount * 0.05)
-                if indexRange < 30:
-                    indexRange = vertexCount
+                        #Sets the limit for the number of random points we can select. Prevents small meshes from throwing an error.
+                        indexRange = round(vertexCount * 0.25)
+                        if indexRange < 30:
+                            indexRange = vertexCount
 
+                        #Turn the highpoly on for rays to hit it
+                        highObject.hide_set(False)
 
-                highObject.hide_set(False)
+                        for i in range(indexRange):
+                            index = random.randint(0, indexCap)
 
-                for i in range(indexRange):
-                    index = random.randint(0, indexCap)
+                            hit, loc, norm, idx, ob, M = scene.ray_cast(context.evaluated_depsgraph_get(), transformList[index], normalList[index], distance=ss.searchDistance)
 
-                    hit, loc, norm, idx, ob, M = scene.ray_cast(context.evaluated_depsgraph_get(), transformList[index], normalList[index], distance=ss.searchDistance)
+                            if hit:
+                                #add 1 to the hitCount and print what we hit
+                                hitCount = hitCount + 1
 
-                    if hit:
-                        #add 1 to the hitCount and print what we hit
-                        hitCount = hitCount + 1
+                            #add 1 to the index so we can move to the next object
+                            index = index + 1
+                            accuracy = hitCount/indexRange
 
-                    #add 1 to the index so we can move to the next object
-                    index = index + 1
-                    accuracy = hitCount/indexRange
+                            #compare the hit count with the vert count every check. If more than half the hits match a highpoly object, exit the loop.
+                            if accuracy >= matchAccuracy:
+                                print("More than " + str(matchAccuracy * 100) + "% of the lowpoly verts match " + str(highObject.name))
+                                break
 
-                    #print a miss
-                    #if not hit:
-                        #print("Missed")
-
-                    #compare the hit count with the vert count every check. If more than half the hits match a highpoly object, exit the loop.
-                    if accuracy >= matchAccuracy:
-                        print("More than " + str(matchAccuracy * 100) + "% of the lowpoly verts match " + str(highObject.name))
-                        print("Checking for similar volume...")
-                        rayVolMatch = False
-
-                        bm = bmesh.new()
-                        bm.from_mesh(lowObject.data)
-                        #lowArea = sum(f.calc_area() for f in bm.faces)
-                        lowVolume = bm.calc_volume(signed=True)
-                        print("Low volume: " + str(lowVolume))
-                        bm.free()
-                        bm = bmesh.new()
-                        bm.from_mesh(highObject.data)
-                        #highArea = sum(f.calc_area() for f in bm.faces)
-                        highVolume = bm.calc_volume(signed=True)
-                        print("High volume: " + str(highVolume))
-                        bm.free()
-                        #areaDif = highArea/lowArea
-                        #areaDif = areaDif - 1
-                        volumeDif = highVolume/lowVolume
-                        volumeDif = volumeDif - 1
-
-                        if volumeDif < 0:
-                            volumeDif = volumeDif * -1
-
-                        if volumeDif <= 0.3:
-                            print("Volume difference: " + str(volumeDif))
-                            print("Volumes are similar")
-                            rayVolMatch = True
+                        if accuracy >= matchAccuracy:
                             break
-
                         else:
-                            print("Volume difference: " + str(volumeDif))
-                            print("Volume difference too high. Aborting match...")
-                            accuracy = 0
-                            break
-                        
-                        
+                            highMatchesIndex = highMatchesIndex + 1
 
-                #compare the hit count with the vert count every highpoly object. If more than half the hits match a highpoly object, exit the loop.
-                if accuracy >= matchAccuracy:
-                    if rayVolMatch == True:
-                        print("<<Matching " + str(lowObject.name) + " with " + str(highObject.name) + ">>")
+                    if accuracy >= matchAccuracy:
+                        print("<<Matched " + str(lowObject.name) + " and " + str(highObject.name) + ">>")
+                        highMatched.append(highObject)
+                        lowMatched.append(lowObject)
                         lowObject.name = mesh_low_name
                         highObject.name = mesh_high_name
                         print("<<Converted to " + str(lowObject.name) + " and " + str(highObject.name) + ">>")
-                        print("Moving to next object...")
-                        break
+                        matchFound = True
+                        
+                    if accuracy < matchAccuracy:
+                        print("<<No match found>>")
+                        matchFound = False
 
-                #hide the highpoly object
-                highObject.hide_set(True)
-                #time.sleep(0.1)
+                    #hide the highpoly object
+                    highObject.hide_set(True)
 
-            #THIS IS A PROBLEM
-            if accuracy < matchAccuracy:
-                print("NO MATCH FOUND")
-                badLowMatches.append(lowObject)
-                badHighMatches.append(highObject)
+            #Remove duplicate matches from match lists
+            lowMatched = list(dict.fromkeys(lowMatched))
+            highMatched = list(dict.fromkeys(highMatched))
+            #print(str(lowMatched))
+            #print(str(highMatched))
 
-        for ob in badLowMatches:
-            for coll in ob.users_collection:
-                # Unlink the object
-                coll.objects.unlink(ob)
-            bg_collection.objects.link(ob)
+            #Move highpoly objects that weren't matched to an 'UNMATCHED' collection
+            for highObject in bg_high_collection.all_objects:
+                if highObject in highMatched:
+                    meshMatchIndex = meshMatchIndex + 1
+                    pass
+                else:
+                    print("Moving unmatched highpoly meshes...")
+                    bg_high_unmatched_collection = bpy.data.collections.get(bg_high_unmatched_name)
+                    if bg_high_unmatched_collection:
+                        for coll in highObject.users_collection:
+                            coll.objects.unlink(highObject)
+                        bg_high_unmatched_collection.objects.link(highObject)
+                    else:
+                        bg_high_unmatched_collection = bpy.data.collections.new(bg_high_unmatched_name)
+                        bg_high_collection.children.link(bg_high_unmatched_collection)
+                        for coll in highObject.users_collection:
+                            coll.objects.unlink(highObject)
+                        bg_high_unmatched_collection.objects.link(highObject)
+                if meshMatchIndex < len(highMatched):
+                    highpolysMatch = False
+                else:
+                    highpolysMatch = True
 
-        for ob in badHighMatches:
-            for coll in ob.users_collection:
-                # Unlink the object
-                coll.objects.unlink(ob)
-            bg_collection.objects.link(ob)
+            meshMatchIndex = -1
 
-        #Unhide everything
-        for lowObject in bg_low_collection.all_objects:
-            lowObject.hide_set(False)
+            #Move highpoly objects that weren't matched to an 'UNMATCHED' collection
+            for lowObject in bg_low_collection.all_objects:
+                if lowObject in lowMatched:
+                    meshMatchIndex = meshMatchIndex + 1
+                    pass
+                else:
+                    print("Moving unmatched lowpoly meshes...")
+                    bg_low_unmatched_collection = bpy.data.collections.get(bg_low_unmatched_name)
+                    if bg_low_unmatched_collection:
+                        for coll in lowObject.users_collection:
+                            coll.objects.unlink(lowObject)
+                        bg_low_unmatched_collection.objects.link(lowObject)
+                    else:
+                        bg_low_unmatched_collection = bpy.data.collections.new(bg_low_unmatched_name)
+                        bg_low_collection.children.link(bg_low_unmatched_collection)
+                        for coll in lowObject.users_collection:
+                            coll.objects.unlink(lowObject)
+                        bg_low_unmatched_collection.objects.link(lowObject)
+                if meshMatchIndex < len(lowMatched):
+                    lowpolysMatch = False
+                else:
+                    lowpolysMatch = True
 
-        for highObject in bg_high_collection.all_objects:
-            highObject.hide_set(False)
+            print(highpolysMatch)
+            print(lowpolysMatch)
+            #print the results of the matching tests
+            if highpolysMatch and lowpolysMatch == True:
+                self.report({'INFO'}, "ALL MESHES MATCHED")
+            else:
+                self.report({'WARNING'}, "NO MATCH FOUND FOR SOME MESHES")
+
+            #Unhide everything
+            for lowObject in bg_low_collection.all_objects:
+                lowObject.hide_set(False)
+
+            for highObject in bg_high_collection.all_objects:
+                highObject.hide_set(False)
+
+        else:
+            self.report({'ERROR'}, "Bake collections are not completely set up")
 
         return{'FINISHED'}
 
