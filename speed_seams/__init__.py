@@ -13,9 +13,8 @@ from bpy.props import (StringProperty,
                        EnumProperty,
                        PointerProperty,
                        )
-from .menus.panels import SPEEDSEAMS_MT_EdgeToolsPie, SPEEDSEAMS_MT_HighLowPie, SPEEDSEAMS_MT_QuickSharpPie, SPEEDSEAMS_MT_TransformsToolsPie
+from .menus.pies import SPEEDSEAMS_MT_EdgeToolsPie, SPEEDSEAMS_MT_QuickSharpPie, SPEEDSEAMS_MT_TransformsToolsPie
 from .operators import SPEEDSEAMS_OT_SharpenSlider
-from .operators import SPEEDSEAMS_OT_OrganizeHighLowCollections
 
 bl_info = {
     "name": "Speed Seams",
@@ -83,55 +82,6 @@ class SpeedSeamsSettings(bpy.types.PropertyGroup):
         ]
     )
 
-    renameCollectionsBool: bpy.props.BoolProperty(
-        name="Rename Collections",
-        description="Gives the option to rename the high and low input collections.",
-        default=False
-    )
-
-    renameObjectsBool: bpy.props.BoolProperty(
-        name="Rename Objects",
-        description="Gives the option to rename each object pair as bake groups are made.",
-        default=False
-    )
-
-    bakePrepAssetName: bpy.props.StringProperty(
-        name="",
-        description="The asset name used to name bake prep collections",
-        default=""
-        #update=SPEEDSEAMS_OT_OrganizeHighLowCollections.execute
-    )
-
-    bakePrepSuffixHigh: bpy.props.StringProperty(
-        name="",
-        description="The highpoly suffix to use for objects and high/low collections",
-        default="high"
-    )
-
-    bakePrepSuffixLow: bpy.props.StringProperty(
-        name="",
-        description="The lowpoly suffix to use for objects and high/low collections",
-        default="low"
-    )
-
-    matchAccuracy: bpy.props.IntProperty(
-        name="Match Accuracy",
-        description="Percent of the lowpoly mesh shape that must match the highpoly mesh shape in order to be paired together",
-        default=95,
-        min=95,
-        max=100,
-        step=1
-    )
-
-    searchDistance: bpy.props.FloatProperty(
-        name="Search Distance",
-        description="Percent of the lowpoly mesh shape that must match the highpoly mesh shape in order to be paired together",
-        default=0.3,
-        min=0.3,
-        max=2.0,
-        step=1.00
-    )
-
 #-----------------------------------------------------#
 #     register the modules
 #-----------------------------------------------------#
@@ -143,41 +93,33 @@ def register():
     register_addon()
     bpy.utils.register_class(SpeedSeamsSettings)
     bpy.types.Scene.ss_settings = PointerProperty(type=SpeedSeamsSettings)
-    bpy.types.Scene.ss_collection_high = PointerProperty(name="", type=bpy.types.Collection)
-    bpy.types.Scene.ss_collection_low = PointerProperty(name="", type=bpy.types.Collection)
 
     #Register Keymaps
     kc = bpy.context.window_manager.keyconfigs.addon
     km = kc.keymaps.new(name='3D View', space_type='VIEW_3D')
 
-    kmi_edge_tools_pie = km.keymap_items.new("wm.call_menu_pie", "D", "PRESS", shift=True)
+    kmi_edge_tools_pie = km.keymap_items.new("wm.call_menu_pie", "E", "PRESS", shift=True, ctrl=True)
     kmi_edge_tools_pie.properties.name = SPEEDSEAMS_MT_EdgeToolsPie.bl_idname
 
-    kmi_transforms_pie = km.keymap_items.new("wm.call_menu_pie", "D", "PRESS", shift=True, ctrl=True)
+    kmi_transforms_pie = km.keymap_items.new("wm.call_menu_pie", "D", "PRESS", shift=True)
     kmi_transforms_pie.properties.name = SPEEDSEAMS_MT_TransformsToolsPie.bl_idname
 
     kmi_quick_sharp_pie = km.keymap_items.new("wm.call_menu_pie", "X", "PRESS", shift=True, ctrl=True)
     kmi_quick_sharp_pie.properties.name = SPEEDSEAMS_MT_QuickSharpPie.bl_idname
 
-    kmi_high_low_pie = km.keymap_items.new("wm.call_menu_pie", "C", "PRESS", shift=True)
-    kmi_high_low_pie.properties.name = SPEEDSEAMS_MT_HighLowPie.bl_idname
-
-    addon_keymaps.append((km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie, kmi_high_low_pie))
+    addon_keymaps.append((km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie))
 
 def unregister():
     from .register import unregister_addon
     unregister_addon()
     del bpy.types.Scene.ss_settings
-    del bpy.types.Scene.ss_collection_high
-    del bpy.types.Scene.ss_collection_low
 
     #Unregister Keymaps
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
     if kc:
-        for km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie, kmi_high_low_pie in addon_keymaps:
+        for km, kmi_edge_tools_pie, kmi_quick_sharp_pie, kmi_transforms_pie in addon_keymaps:
             km.keymap_items.remove(kmi_edge_tools_pie)
             km.keymap_items.remove(kmi_quick_sharp_pie)
             km.keymap_items.remove(kmi_transforms_pie)
-            km.keymap_items.remove(kmi_high_low_pie)
     addon_keymaps.clear()

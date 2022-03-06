@@ -14,12 +14,3 @@ def parent_lookup(coll):
             parent_lookup.setdefault(c, coll)
     print(parent_lookup)
     return parent_lookup
-
-def progress_bar(job_title, progress):
-    length = 20
-    block = int(round(length*progress))
-    msg = "/r{0}: [{1}] {2}%".format(job_title, "#"*block + "-"*(length-block), round(progress*100, 2))
-    if progress >= 1:
-        msg += "DONE\r\n"
-    sys.stdout.write(msg)
-    sys.stdout.flush()
