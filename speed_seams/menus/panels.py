@@ -4,8 +4,8 @@
 import bpy
 from bpy.types import Menu
 from bpy.props import StringProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty
-from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_uv_unwrap
-
+from ..operators import op_apply_transforms, op_edge_marker, op_gpu_overlay, op_uv_unwrap, op_texel_density_checker
+from os.path import exists
 # ------------------------------------------------------------------------
 #    Classes
 # ------------------------------------------------------------------------
@@ -27,13 +27,142 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         scene = context.scene
         ss = scene.ss_settings
 
-        #UV Tools --------------------------------------------------------------
+        #Texel Density Checker Integration --------------------------------------------------------------
         box = layout.box()
         scale = 1.2
         col = box.column(align=True)
         row = col.row(align=True)
         row.scale_y = scale
 
+        row = col.row(align=True)
+        row.scale_y = scale
+        try:
+            td = scene.td
+            if context.object is not None:
+                row.label(text="Texel Density Checker")
+            else:
+                row.active = False
+                row.label(text="Texel Density Checker")
+
+            row = col.row(align=True)
+            row.scale_y = scale
+            if context.object is not None:
+                row.label(text="Units:")
+                row.prop(td, "units")
+            else:
+                row.active = False
+                row.label(text="Units:")
+                row.prop(td, "units")
+
+            row = col.row(align=True)
+            row.scale_y = scale
+            if context.object is not None:
+                row.label(text="Texture Size:")
+                row.prop(td, "texture_size")
+            else:
+                row.active = False
+                row.label(text="Texture Size:")
+                row.prop(td, "texture_size")
+
+            row = col.row(align=True)
+            row.scale_y = scale
+            if context.object is not None:
+                row.label(text="Set TD:")
+                row.prop(td, "density_set")
+            else:
+                row.active = False
+                row.label(text="Set TD:")
+                row.prop(td, "density_set")
+
+            row = col.row(align=True)
+            row.scale_y = scale
+            row.operator(op_texel_density_checker.SPEEDSEAMS_OT_SetTD.bl_idname, icon='TEXTURE_DATA')
+
+            row = col.row(align=True)
+            row.scale_y = scale
+            if context.object is not None:
+                if td.units == '0':
+                    row.operator("object.preset_set", text="20.48").td_value = "20.48"
+                    row.operator("object.preset_set", text="10.24").td_value = "10.24"
+                    row.operator("object.preset_set", text="5.12").td_value = "5.12"
+                if td.units == '1':
+                    row.operator("object.preset_set", text="2048").td_value="2048"
+                    row.operator("object.preset_set", text="1024").td_value="1024"
+                    row.operator("object.preset_set", text="512").td_value="512"
+                if td.units == '2':
+                    row.operator("object.preset_set", text="52.019").td_value="52.019"
+                    row.operator("object.preset_set", text="26.01").td_value="26.01"
+                    row.operator("object.preset_set", text="13.005").td_value="13.005"
+                if td.units == '3':
+                    row.operator("object.preset_set", text="624.23").td_value="624.23"
+                    row.operator("object.preset_set", text="312.115").td_value="312.115"
+                    row.operator("object.preset_set", text="156.058").td_value="156.058"
+
+            else:
+                row.active = False
+                if td.units == '0':
+                    row.operator("object.preset_set", text="20.48").td_value = "20.48"
+                    row.operator("object.preset_set", text="10.24").td_value = "10.24"
+                    row.operator("object.preset_set", text="5.12").td_value = "5.12"
+                if td.units == '1':
+                    row.operator("object.preset_set", text="2048").td_value="2048"
+                    row.operator("object.preset_set", text="1024").td_value="1024"
+                    row.operator("object.preset_set", text="512").td_value="512"
+                if td.units == '2':
+                    row.operator("object.preset_set", text="52.019").td_value="52.019"
+                    row.operator("object.preset_set", text="26.01").td_value="26.01"
+                    row.operator("object.preset_set", text="13.005").td_value="13.005"
+                if td.units == '3':
+                    row.operator("object.preset_set", text="624.23").td_value="624.23"
+                    row.operator("object.preset_set", text="312.115").td_value="312.115"
+                    row.operator("object.preset_set", text="156.058").td_value="156.058"
+
+            row = col.row(align=True)
+            row.scale_y = scale
+            if context.object is not None:
+                if td.units == '0':
+                    row.operator("object.preset_set", text="2.56").td_value = "2.56"
+                    row.operator("object.preset_set", text="1.28").td_value = "1.28"
+                    row.operator("object.preset_set", text="0.64").td_value = "0.64"
+                if td.units == '1':
+                    row.operator("object.preset_set", text="256").td_value="256"
+                    row.operator("object.preset_set", text="128").td_value="128"
+                    row.operator("object.preset_set", text="64").td_value="64"
+                if td.units == '2':
+                    row.operator("object.preset_set", text="6.502").td_value="6.502"
+                    row.operator("object.preset_set", text="3.251").td_value="3.251"
+                    row.operator("object.preset_set", text="1.626").td_value="1.626"
+                if td.units == '3':
+                    row.operator("object.preset_set", text="78.029").td_value="78.029"
+                    row.operator("object.preset_set", text="39.014").td_value="39.014"
+                    row.operator("object.preset_set", text="19.507").td_value="19.507"
+
+            else:
+                row.active = False
+                if td.units == '0':
+                    row.operator("object.preset_set", text="2.56").td_value = "2.56"
+                    row.operator("object.preset_set", text="1.28").td_value = "1.28"
+                    row.operator("object.preset_set", text="0.64").td_value = "0.64"
+                if td.units == '1':
+                    row.operator("object.preset_set", text="256").td_value="256"
+                    row.operator("object.preset_set", text="128").td_value="128"
+                    row.operator("object.preset_set", text="64").td_value="64"
+                if td.units == '2':
+                    row.operator("object.preset_set", text="6.502").td_value="6.502"
+                    row.operator("object.preset_set", text="3.251").td_value="3.251"
+                    row.operator("object.preset_set", text="1.626").td_value="1.626"
+                if td.units == '3':
+                    row.operator("object.preset_set", text="78.029").td_value="78.029"
+                    row.operator("object.preset_set", text="39.014").td_value="39.014"
+                    row.operator("object.preset_set", text="19.507").td_value="19.507"
+        except:
+            row.label(text="Texel Density Checker 3.3 not installed/enabled")
+
+        #UV Tools --------------------------------------------------------------
+
+        box = layout.box()
+        col = box.column(align=True)
+        row = col.row(align=True)
         if context.object is not None:
             row.label(text="UV Tools")
 
