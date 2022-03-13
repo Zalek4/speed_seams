@@ -260,13 +260,13 @@ class SPEEDSEAMS_PT_MainPanel(bpy.types.Panel):
         row.operator(
             op_edge_marker.SPEEDSEAMS_OT_ClearSeams.bl_idname, icon='MARKER')
 
-        if context.mode == 'EDIT_MESH':
+        """if context.mode == 'EDIT_MESH':
             row = col.row(align=True)
             row.scale_y = scale
             row.operator(
                 op_gpu_overlay.SPEEDSEAMS_OT_drawOverlay.bl_idname, icon='MOD_SOLIDIFY')
             row.operator(
-                op_gpu_overlay.SPEEDSEAMS_OT_removeOverlay.bl_idname, icon='MOD_SOLIDIFY')
+                op_gpu_overlay.SPEEDSEAMS_OT_removeOverlay.bl_idname, icon='MOD_SOLIDIFY')"""
 
         #Transforms Tools ---------------------------------------------------------
         box = layout.box()
